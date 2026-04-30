@@ -1,0 +1,4 @@
+=== TRIPLE GENERATION BENCHMARK ===
+Source Primes: ../data/raw/primes_5digits_seed42.txt
+Total Processing Time: 0.0956 seconds
+Average Search Time: 0.9559 ms/triple

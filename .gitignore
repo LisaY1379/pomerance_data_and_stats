@@ -1,0 +1,6 @@
+resources/
+
+01_src/pomerance
+
+.DS_Store
+__pycache__/

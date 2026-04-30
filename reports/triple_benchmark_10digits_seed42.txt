@@ -1,0 +1,4 @@
+=== TRIPLE GENERATION BENCHMARK ===
+Source Primes: ../data/raw/primes_10digits_seed42.txt
+Total Processing Time: 44.4901 seconds
+Average Search Time: 444.9014 ms/triple
