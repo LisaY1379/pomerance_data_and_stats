@@ -350,7 +350,8 @@ static int is_prime128(u128 n) {
  * Dispatch: search64 / search128
  * ================================================================ */
 
-static int search64(u64 p, u64 *out_A, u64 *out_x0) {
+// CODE CHANGE: added records of trial amounts of A to both search64 and search 128
+static int search64(u64 p, u64 *out_A, u64 *out_x0, u64 *out_trials) {
     int k = compute_k(p);
     u64 sqrtp = (u64)sqrtl((long double)p);
     while ((u128)(sqrtp+1)*(sqrtp+1)<=(u128)p) sqrtp++;
@@ -369,16 +370,10 @@ static int search64(u64 p, u64 *out_A, u64 *out_x0) {
     u64 max_trials = (u64)(20.0 * (double)sqrtp / nms);
     if (max_trials < 10000000ULL) max_trials = 10000000ULL;
 
-    int nth = 1;
-#ifdef _OPENMP
-    nth = omp_get_max_threads();
-#endif
-    //printf("Trials: %llu  (heuristic: 20*sqrt(p)/%d)\n", (unsigned long long)max_trials, nms);
-    //printf("Threads: %d\n\n", nth);
-
     volatile int found = 0;
     u64 found_A = 0, found_x0 = 0;
-    double t0 = now_sec();
+
+    u64 shared_trials = 0;
 
 #pragma omp parallel
     {
@@ -422,33 +417,26 @@ static int search64(u64 p, u64 *out_A, u64 *out_x0) {
                     {
                         if (!found) {
                             found=1; found_A=A; found_x0=xR;
-                            //double el = now_sec()-t0;
-                            //printf("Found after %.2fs (~%llu trials)\n\n",
-                            //       el, (unsigned long long)(lc * nthr);
                         }
                     }
                 }
             }
             lc++;
-            if (tid==0 && lc%1000000==0 && !found) {
-               // double el = now_sec()-t0;
-                //u64 est = lc * nthr;
-                //printf("  %lluM trials  %.1f%%  %.1fs  %.1fM/s\n",
-                       //(unsigned long long)(est/1000000),
-                       //100.0*est/max_trials, el, est/el/1e6);
-            }
         }
+
+#pragma omp atomic
+        shared_trials += lc;
     }
 
-    double elapsed = now_sec() - t0;
     if (found) {
         *out_A = found_A;
         *out_x0 = found_x0;
+        *out_trials = shared_trials;
     }
     return found ? 0 : 1;
 }
 
-static int search128(u128 p, u128 *out_A, u128 *out_x0) {
+static int search128(u128 p, u128 *out_A, u128 *out_x0, u64 *out_trials) {
     int k = compute_k(p);
     u64 sqrtp = (u64)sqrtl((long double)p);
     while ((u128)(sqrtp+1)*(sqrtp+1)<=p) sqrtp++;
@@ -470,16 +458,10 @@ static int search128(u128 p, u128 *out_A, u128 *out_x0) {
     u64 max_trials = (u64)(20.0 * (double)sqrtp / nms);
     if (max_trials < 10000000ULL) max_trials = 10000000ULL;
 
-    int nth = 1;
-#ifdef _OPENMP
-    nth = omp_get_max_threads();
-#endif
-    //printf("Trials: %llu  (heuristic: 20*sqrt(p)/%d)\n", (unsigned long long)max_trials, nms);
-    //printf("Threads: %d\n\n", nth);
-
     volatile int found = 0;
     u128 found_A = 0, found_x0 = 0;
-    double t0 = now_sec();
+
+    u64 shared_trials = 0;
 
 #pragma omp parallel
     {
@@ -533,20 +515,16 @@ static int search128(u128 p, u128 *out_A, u128 *out_x0) {
                 }
             }
             lc++;
-            if (tid==0 && lc%500000==0 && !found) {
-                //double el = now_sec()-t0;
-                //u64 est = lc * nthr;
-                //printf("  %lluM trials  %.1f%%  %.1fs  %.1fM/s\n",
-                 //      (unsigned long long)(est/1000000),
-                   //    100.0*est/max_trials, el, est/el/1e6;
-            }
         }
+
+#pragma omp atomic
+        shared_trials += lc;
     }
 
-    double elapsed = now_sec() - t0;
     if (found) {
         *out_A = found_A;
         *out_x0 = found_x0;
+        *out_trials = shared_trials;
     }
     return found ? 0 : 1;
 }
@@ -572,48 +550,50 @@ int main(int argc, char *argv[]) {
     }
 
     // Write the CSV headers for both files
-    fprintf(out_metrics, "prime,A,x0,time_seconds\n");
+    fprintf(out_metrics, "prime,A,x0,trials\n");
 
     unsigned long long p_low;
+    unsigned long long current_index = 0;
 
     // Read every prime until the end of the file
     while (fscanf(input, "%llu", &p_low) != EOF) {
+        current_index++;
+
         u128 p = (u128)p_low;
 
-        double start_time = now_sec();
+        printf("[%llu] Processing prime: %llu...\n", current_index, p_low);
+        fflush(stdout);
 
         unsigned long long A = 0;
         unsigned long long x0 = 0;
-        int status = 1; // 1 = fail, 0 = success
+        unsigned long long trials = 0;
+        int status = 1;
 
-        // Dispatch to the correct mathematical engine
         if (p < ((u128)1 << 63)) {
-            u64 out_A = 0, out_x0 = 0;
-            status = search64((u64)p, &out_A, &out_x0);
+            u64 out_A = 0, out_x0 = 0, out_trials = 0;
+            status = search64((u64)p, &out_A, &out_x0, &out_trials);
             A = (unsigned long long)out_A;
             x0 = (unsigned long long)out_x0;
+            trials = (unsigned long long)out_trials;
         } else {
             u128 out_A = 0, out_x0 = 0;
-            status = search128(p, &out_A, &out_x0);
+            u64 out_trials = 0;
+            status = search128(p, &out_A, &out_x0, &out_trials);
             A = (unsigned long long)out_A;
             x0 = (unsigned long long)out_x0;
+            trials = (unsigned long long)out_trials;
         }
 
-        double end_time = now_sec();
-        double time_taken = end_time - start_time;
-
-        // Save results to both files appropriately
         if (status == 0) {
-            // Pure data (no time)
             fprintf(out_pure, "%llu,%llu,%llu\n", (unsigned long long)p, A, x0);
-            // Metrics data (with time)
-            fprintf(out_metrics, "%llu,%llu,%llu,%f\n", (unsigned long long)p, A, x0, time_taken);
-
-            printf("Success: %llu solved in %f sec\n", (unsigned long long)p, time_taken);
+            fprintf(out_metrics, "%llu,%llu,%llu,%llu\n", (unsigned long long)p, A, x0, trials);
+            printf("[%llu] Success: solved in %llu trials\n\n", current_index, trials);
+            fflush(stdout);
         } else {
             fprintf(out_pure, "%llu,FAILED,FAILED\n", (unsigned long long)p);
-            fprintf(out_metrics, "%llu,FAILED,FAILED,%f\n", (unsigned long long)p, time_taken);
+            fprintf(out_metrics, "%llu,FAILED,FAILED,FAILED\n", (unsigned long long)p);
             printf("Failed: %llu\n", (unsigned long long)p);
+            fflush(stdout);
         }
     }
 

@@ -2,95 +2,91 @@ import cypari2
 import numpy as np
 import time
 import os
-import subprocess
+import argparse
+import json
 
 # Initialize the PARI/GP engine inside Python
 pari = cypari2.Pari()
 
 
-def generate_ecpp_primes_for_ml(batch_size, digits, seed_value):
+def generate_ecpp_primes_for_ml(batch_size, min_digits, max_digits, seed_value):
     """
     Generates mathematically proven primes and tracks individual generation times.
     """
     rng = np.random.default_rng(seed_value)
     proven_primes = []
-    generation_times = []  # Store every individual time
 
-    print(f"Generating {batch_size} proven primes ({digits}-digit) with seed {seed_value}...\n")
+    print(f"Generating {batch_size} proven primes ({min_digits} to {max_digits} digits) with seed {seed_value}...\n")
 
-    lower_bound = 10 ** (digits - 1)
-    upper_bound = 10 ** digits
-
-    current_prime_start = time.perf_counter()
+    start_time = time.perf_counter()
 
     while len(proven_primes) < batch_size:
+        current_digits = int(rng.integers(min_digits, max_digits + 1))
+
+        lower_bound = 10 ** (current_digits - 1)
+        upper_bound = 10 ** current_digits
+
         candidate = int(rng.integers(lower_bound, upper_bound))
 
         if pari.ispseudoprime(candidate):
             if pari.isprime(candidate, 3):
                 proven_primes.append(candidate)
 
-                # Record the time for this specific prime
-                time_taken = time.perf_counter() - current_prime_start
-                generation_times.append(time_taken)
-
                 print(
-                    f"[{len(proven_primes)}/{batch_size}] ECPP Verified: {candidate} | Time: {time_taken * 1000:.4f} ms")
+                    f"[{len(proven_primes)}/{batch_size}] ECPP Verified ({current_digits}-digit): {candidate}")
 
-                # Reset stopwatch
-                current_prime_start = time.perf_counter()
-
-    # Return BOTH lists so we can save them later
-    return proven_primes, generation_times
+    generation_time = time.perf_counter() - start_time
+    return proven_primes, generation_time
 
 
 # --- 1. Generate your dataset ---
-BATCH_SIZE = 100
-DIGITS = 10
-SEED_VALUE = 42
+# CODE UPDATES:
+# 1. Enabled terminal custom arguments pass in
+# 2. Introduced random seeds as well as the ability to custom seeds via command lines
+parser = argparse.ArgumentParser()
+parser.add_argument("--batch_size", type=int, default=100)
+parser.add_argument("--min_digits", type=int, default=12)
+parser.add_argument("--max_digits", type=int, default=15)
+parser.add_argument("--seed", type=int, default=None)
+args = parser.parse_args()
 
-start_time = time.time()
-ml_dataset, times_list = generate_ecpp_primes_for_ml(batch_size=BATCH_SIZE, digits=DIGITS, seed_value=SEED_VALUE)
+BATCH_SIZE = args.batch_size
+MIN_DIGITS = args.min_digits
+MAX_DIGITS = args.max_digits
 
-# Calculate summary statistics
-total_gen_time = sum(times_list)
-average_time = total_gen_time / len(times_list)
-overall_script_time = time.time() - start_time
+SEED_VALUE = args.seed if args.seed is not None else int(time.time())
+
+ml_dataset, gen_time = generate_ecpp_primes_for_ml(
+    batch_size=BATCH_SIZE,
+    min_digits=MIN_DIGITS,
+    max_digits=MAX_DIGITS,
+    seed_value=SEED_VALUE
+)
 
 # --- 2. Setup Data Directory ---
 data_dir = os.path.join("..", "data")
-reports_dir = os.path.join("..", "reports")
+raw_data_dir = os.path.join(data_dir, "raw")
 os.makedirs(data_dir, exist_ok=True)
-os.makedirs(reports_dir, exist_ok=True)
+os.makedirs(raw_data_dir, exist_ok=True)
 
 # --- 3. Save the Clean Primes File (For C Program) ---
-primes_filename = f"primes_{DIGITS}digits_seed{SEED_VALUE}.txt"
-primes_path = os.path.join(data_dir, primes_filename)
+base_filename = f"primes_{MIN_DIGITS}to{MAX_DIGITS}digits_seed{SEED_VALUE}"
+primes_path = os.path.join(raw_data_dir, f"{base_filename}.txt")
 
 with open(primes_path, "w") as file:
     for prime in ml_dataset:
         file.write(f"{prime}\n")
 
-# --- 4. Save the Benchmark Report (For You) ---
-benchmark_filename = f"benchmark_{DIGITS}digits_seed{SEED_VALUE}.txt"
-benchmark_path = os.path.join(reports_dir, benchmark_filename)
+metadata = {
+    "batch_size": BATCH_SIZE,
+    "min_digits": MIN_DIGITS,
+    "max_digits": MAX_DIGITS,
+    "seed_used": SEED_VALUE,
+    "total_generation_time_seconds": round(gen_time, 2),
+    "average_time_per_prime_seconds": round(gen_time / BATCH_SIZE, 4)
+}
 
-with open(benchmark_path, "w") as file:
-    # Write the summary header
-    file.write("=== GENERATION BENCHMARK REPORT ===\n")
-    file.write(f"Digits: {DIGITS}\n")
-    file.write(f"Seed Used: {SEED_VALUE}\n")
-    file.write(f"Total Primes Generated: {BATCH_SIZE}\n")
-    file.write("-" * 35 + "\n")
-    file.write(f"Total Prime Generation Time: {total_gen_time * 1000:.4f} ms\n")
-    file.write(f"Average Time Per Prime:      {average_time * 1000:.4f} ms\n")
-    file.write(f"Total Script Runtime:        {overall_script_time:.4f} seconds\n")
-    file.write("===================================\n\n")
-
-    # Write the individual times
-    file.write("--- Individual Generation Times ---\n")
-    for i, (prime, t) in enumerate(zip(ml_dataset, times_list)):
-        file.write(f"Prime {i + 1} ({prime}): {t * 1000:.4f} ms\n")
+metadata_path = os.path.join(raw_data_dir, f"{base_filename}_meta.json")
 
 print(f"\nSuccessfully saved primes to: {primes_path}")
-print(f"Successfully saved benchmark report to: {benchmark_path}")
+print(f"Successfully saved metadata to: {metadata_path}")
