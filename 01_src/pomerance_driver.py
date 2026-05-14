@@ -59,4 +59,4 @@ def run_triple_benchmark(min_digits, max_digits, seed):
     print(f"Benchmark saved to: {report_file}")
 
 
-run_triple_benchmark(min_digits=12, max_digits=15, seed=1778788757)
+run_triple_benchmark(min_digits=7, max_digits=11, seed=1778732562)
