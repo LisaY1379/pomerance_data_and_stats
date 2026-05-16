@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e32caff9-6a59-49a4-be37-a0f16221f526" name="Changes" comment="Fourth commit 05/14/2026: Added 20k 7-11 digits">
-      <change afterPath="$PROJECT_DIR$/01_src/copy_primes.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/01_src/fix_reports_triples.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/01_src/pomerance_driver.py" beforeDir="false" afterPath="$PROJECT_DIR$/01_src/pomerance_driver.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/raw/primes_12to15digits_seed1778731660.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/raw/primes_12to15digits_seed1778731660.txt" afterDir="false" />
-    </list>
+    <list default="true" id="e32caff9-6a59-49a4-be37-a0f16221f526" name="Changes" comment="Sixth commit 05/16/2026: Reordered directory, put non-final testing data into /process_time_testing_data" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -126,7 +120,23 @@
       <option name="project" value="LOCAL" />
       <updated>1778803061237</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Fifth commit 05/16/2026: Added 10k 12-15 digits">
+      <option name="closed" value="true" />
+      <created>1778961690237</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1778961690237</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Sixth commit 05/16/2026: Reordered directory, put non-final testing data into /process_time_testing_data">
+      <option name="closed" value="true" />
+      <created>1778961968703</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1778961968703</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -134,6 +144,8 @@
     <MESSAGE value="Second commit 04/30/2026" />
     <MESSAGE value="Third commit 05/14/2026" />
     <MESSAGE value="Fourth commit 05/14/2026: Added 20k 7-11 digits" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fourth commit 05/14/2026: Added 20k 7-11 digits" />
+    <MESSAGE value="Fifth commit 05/16/2026: Added 10k 12-15 digits" />
+    <MESSAGE value="Sixth commit 05/16/2026: Reordered directory, put non-final testing data into /process_time_testing_data" />
+    <option name="LAST_COMMIT_MESSAGE" value="Sixth commit 05/16/2026: Reordered directory, put non-final testing data into /process_time_testing_data" />
   </component>
 </project>
