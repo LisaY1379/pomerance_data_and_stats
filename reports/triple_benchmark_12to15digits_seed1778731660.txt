@@ -1,0 +1,8 @@
+=== TRIPLE GENERATION BENCHMARK ===
+Source Primes: ../data/processed/triples_metrics_12to15digits_seed1778731660.txt
+Hardware Processing Time: null
+-----------------------------------
+Successful Proofs: 10000
+Total A's Tried: 47637916161
+Average A's Tried per Prime: 4763791.62
+-----------------------------------
