@@ -307,7 +307,8 @@ static int compute_odd_parts(u128 p, int k, u64 *ms, int max_ms) {
                 if (sign > 0) tv = (long long)(res + j * twok);
                 else           tv = (long long)res - (long long)((j+1) * twok);
                 if (tv > (long long)two_sqrtp || tv < -(long long)two_sqrtp) break;
-                if (tv == 0) continue;
+                //CODE UPDATE: Commented out the line abandoning supersingular elliptic curve
+                //if (tv == 0) continue;
                 u128 N = pp1;
                 if (ri == 0) { if (tv>=0) N-=(u64)tv; else N+=(u64)(-tv); }
                 else         { if (tv>=0) N+=(u64)tv; else N-=(u64)(-tv); }
@@ -350,19 +351,17 @@ static int is_prime128(u128 n) {
  * Dispatch: search64 / search128
  * ================================================================ */
 
-// CODE CHANGE: added records of trial amounts of A to both search64 and search 128
-static int search64(u64 p, u64 *out_A, u64 *out_x0, u64 *out_trials) {
+static int search64(u64 p, u64 old_A, u64 old_x0, int target_count, u64 *out_A, u64 *out_x0, u64 *out_trials) {
+    volatile int found_count = 0;
+    u64 shared_trials = 0;
+
     int k = compute_k(p);
     u64 sqrtp = (u64)sqrtl((long double)p);
     while ((u128)(sqrtp+1)*(sqrtp+1)<=(u128)p) sqrtp++;
     while ((u128)sqrtp*sqrtp>(u128)p) sqrtp--;
 
     u64 ms[64]; int nms = compute_odd_parts(p, k, ms, 64);
-    //printf("k = %d\n", k);
-    //printf("Odd parts (%d):", nms);
-    //for (int i=0;i<nms;i++) printf(" %llu", (unsigned long long)ms[i]);
-    //printf("\n");
-    if (nms == 0) { printf("No valid odd parts.\n"); return 1; }
+    if (nms == 0) { printf("No valid odd parts.\n"); return found_count; }
 
     Mont64 mt; m64_init(&mt, p);
     u64 inv4; { u64 r=1,b=4%p; for(u64 e=p-2;e;e>>=1){if(e&1)r=mulmod64(r,b,p);b=mulmod64(b,b,p);} inv4=r; }
@@ -370,23 +369,21 @@ static int search64(u64 p, u64 *out_A, u64 *out_x0, u64 *out_trials) {
     u64 max_trials = (u64)(20.0 * (double)sqrtp / nms);
     if (max_trials < 10000000ULL) max_trials = 10000000ULL;
 
-    volatile int found = 0;
-    u64 found_A = 0, found_x0 = 0;
-
-    u64 shared_trials = 0;
-
 #pragma omp parallel
     {
         int tid=0, nthr=1;
 #ifdef _OPENMP
         tid = omp_get_thread_num(); nthr = omp_get_num_threads();
 #endif
-        Rng rng = {.s0=7364529176530163ULL^((u64)tid*6364136223846793005ULL),
-                   .s1=1442695040888963407ULL^((u64)(tid+1)*2862933555777941757ULL)};
+        u64 current_time = (u64)time(NULL);
+        Rng rng = {
+            .s0 = 7364529176530163ULL ^ ((u64)tid * 6364136223846793005ULL) ^ p ^ current_time,
+            .s1 = 1442695040888963407ULL ^ ((u64)(tid+1) * 2862933555777941757ULL) ^ (current_time << 32)
+        };
         for (int i=0;i<200;i++) rng64(&rng);
         u64 budget = max_trials / nthr + 1, lc = 0;
 
-        while (!found && lc < budget) {
+        while (found_count < target_count && lc < budget) {
             u64 A = rng64(&rng) % p;
             u64 x0r = rng64(&rng) % p;
             if (A<=2||A>=p-2||x0r<2) { lc++; continue; }
@@ -394,7 +391,7 @@ static int search64(u64 p, u64 *out_A, u64 *out_x0, u64 *out_trials) {
             u64 a24m = toM64(a24, &mt);
             u64 x0m = toM64(x0r, &mt);
 
-            for (int mi=0; mi<nms && !found; mi++) {
+            for (int mi=0; mi<nms && found_count < target_count; mi++) {
                 u64 QX, QZ;
                 xMUL64(&QX, &QZ, x0m, ms[mi], a24m, &mt);
                 if (QZ == 0) continue;
@@ -405,9 +402,10 @@ static int search64(u64 p, u64 *out_A, u64 *out_x0, u64 *out_trials) {
                     if (CZ==0) { zs=s; break; }
                 }
                 if (zs < k) continue;
-                int target = zs - k;
+
+                int target_z = zs - k;
                 CX=QX; CZ=QZ;
-                for (int s=0; s<target; s++) xDBL64(&CX,&CZ,CX,CZ,a24m,&mt);
+                for (int s=0; s<target_z; s++) xDBL64(&CX,&CZ,CX,CZ,a24m,&mt);
                 u64 cz = frM64(CZ, &mt);
                 if (cz == 0) continue;
                 u64 czinv; {u64 r2=1,b2=cz;for(u64 e=p-2;e;e>>=1){if(e&1)r2=mulmod64(r2,b2,p);b2=mulmod64(b2,b2,p);}czinv=r2;}
@@ -415,8 +413,17 @@ static int search64(u64 p, u64 *out_A, u64 *out_x0, u64 *out_trials) {
                 if (verify64(p, A, xR)) {
 #pragma omp critical
                     {
-                        if (!found) {
-                            found=1; found_A=A; found_x0=xR;
+                        int is_dup = 0;
+                        for(int j = 0; j < found_count; j++) {
+                            if(out_A[j] == A && out_x0[j] == xR) {
+                                is_dup = 1; break;
+                            }
+                        }
+                        if (!is_dup && found_count < target_count) {
+                            out_A[found_count] = A;
+                            out_x0[found_count] = xR;
+                            out_trials[found_count] = lc * nthr;
+                            found_count++;
                         }
                     }
                 }
@@ -428,26 +435,21 @@ static int search64(u64 p, u64 *out_A, u64 *out_x0, u64 *out_trials) {
         shared_trials += lc;
     }
 
-    if (found) {
-        *out_A = found_A;
-        *out_x0 = found_x0;
-        *out_trials = shared_trials;
-    }
-    return found ? 0 : 1;
+    *out_trials = shared_trials;
+    return found_count;
 }
 
-static int search128(u128 p, u128 *out_A, u128 *out_x0, u64 *out_trials) {
+static int search128(u128 p, u128 old_A, u128 old_x0, int target_count, u128 *out_A, u128 *out_x0, u64 *out_trials) {
+    volatile int found_count = 0;
+    u64 shared_trials = 0;
+
     int k = compute_k(p);
     u64 sqrtp = (u64)sqrtl((long double)p);
     while ((u128)(sqrtp+1)*(sqrtp+1)<=p) sqrtp++;
     while ((u128)sqrtp*sqrtp>p) sqrtp--;
 
     u64 ms[64]; int nms = compute_odd_parts(p, k, ms, 64);
-    //printf("k = %d\n", k);
-    //printf("Odd parts (%d):", nms);
-    //for (int i=0;i<nms;i++) printf(" %llu", (unsigned long long)ms[i]);
-    //printf("\n");
-    if (nms == 0) { printf("No valid odd parts.\n"); return 1; }
+    if (nms == 0) { printf("No valid odd parts.\n"); return found_count; }
 
     Mont128 mt; m128_init(&mt, p);
     /* inv4 in Montgomery form */
@@ -458,23 +460,22 @@ static int search128(u128 p, u128 *out_A, u128 *out_x0, u64 *out_trials) {
     u64 max_trials = (u64)(20.0 * (double)sqrtp / nms);
     if (max_trials < 10000000ULL) max_trials = 10000000ULL;
 
-    volatile int found = 0;
-    u128 found_A = 0, found_x0 = 0;
-
-    u64 shared_trials = 0;
-
 #pragma omp parallel
     {
         int tid=0, nthr=1;
 #ifdef _OPENMP
         tid = omp_get_thread_num(); nthr = omp_get_num_threads();
 #endif
-        Rng rng = {.s0=7364529176530163ULL^((u64)tid*6364136223846793005ULL),
-                   .s1=1442695040888963407ULL^((u64)(tid+1)*2862933555777941757ULL)};
+        u64 current_time = (u64)time(NULL);
+        Rng rng = {
+            .s0 = 7364529176530163ULL ^ ((u64)tid * 6364136223846793005ULL) ^ (u64)p ^ current_time,
+            .s1 = 1442695040888963407ULL ^ ((u64)(tid+1) * 2862933555777941757ULL) ^ (current_time << 32)
+        };
         for (int i=0;i<200;i++) rng64(&rng);
+
         u64 budget = max_trials / nthr + 1, lc = 0;
 
-        while (!found && lc < budget) {
+        while (found_count < target_count && lc < budget) {
             u128 A = (u128)rng64(&rng) | ((u128)rng64(&rng) << 64); A %= p;
             u128 x0r = (u128)rng64(&rng) | ((u128)rng64(&rng) << 64); x0r %= p;
             if (A<=2 || A>=p-2 || x0r<2) { lc++; continue; }
@@ -483,7 +484,7 @@ static int search128(u128 p, u128 *out_A, u128 *out_x0, u64 *out_trials) {
             u128 a24m = mm128(Ap2_m, inv4_m, &mt);
             u128 x0m = toM128(x0r, &mt);
 
-            for (int mi=0; mi<nms && !found; mi++) {
+            for (int mi=0; mi<nms && found_count < target_count; mi++) {
                 u128 QX, QZ;
                 xMUL128(&QX, &QZ, x0m, ms[mi], a24m, &mt);
                 if (QZ == 0) continue;
@@ -494,22 +495,31 @@ static int search128(u128 p, u128 *out_A, u128 *out_x0, u64 *out_trials) {
                     if (CZ==0) { zs=s; break; }
                 }
                 if (zs < k) continue;
-                int target = zs - k;
+
+                int target_z = zs - k;
                 CX=QX; CZ=QZ;
-                for (int s=0; s<target; s++) xDBL128(&CX,&CZ,CX,CZ,a24m,&mt);
+                for (int s=0; s<target_z; s++) xDBL128(&CX,&CZ,CX,CZ,a24m,&mt);
+
                 u128 cz = frM128(CZ, &mt);
                 if (cz == 0) continue;
                 u128 czinv_m = mt.one, base = CZ; u128 e2 = p-2;
                 while (e2>0) { if(e2&1) czinv_m=mm128(czinv_m,base,&mt); base=mm128(base,base,&mt); e2>>=1; }
                 u128 xR = frM128(mm128(CX, czinv_m, &mt), &mt);
+
                 if (verify128(p, A, xR)) {
 #pragma omp critical
                     {
-                        if (!found) {
-                            found=1; found_A=A; found_x0=xR;
-                            //double el = now_sec()-t0;
-                            //printf("Found after %.2fs (~%llu trials)\n\n",
-                            //       el, (unsigned long long)(lc * nthr);
+                        int is_dup = 0;
+                        for(int j = 0; j < found_count; j++) {
+                            if(out_A[j] == A && out_x0[j] == xR) {
+                                is_dup = 1; break;
+                            }
+                        }
+                        if (!is_dup && found_count < target_count) {
+                            out_A[found_count] = A;
+                            out_x0[found_count] = xR;
+                            out_trials[found_count] = lc * nthr;
+                            found_count++;
                         }
                     }
                 }
@@ -521,20 +531,19 @@ static int search128(u128 p, u128 *out_A, u128 *out_x0, u64 *out_trials) {
         shared_trials += lc;
     }
 
-    if (found) {
-        *out_A = found_A;
-        *out_x0 = found_x0;
-        *out_trials = shared_trials;
-    }
-    return found ? 0 : 1;
+    *out_trials = shared_trials;
+    return found_count;
 }
 
 /* ================================================================
  * Batch-processing main
  * ================================================================ */
 
+/* ================================================================
+ * Batch-processing main
+ * ================================================================ */
+
 int main(int argc, char *argv[]) {
-    // Now requires 3 file paths instead of 2
     if (argc < 4) {
         printf("Usage: ./pomerance <input_primes.txt> <output_pure.csv> <output_metrics.csv>\n");
         return 1;
@@ -549,50 +558,73 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // Write the CSV headers for both files
     fprintf(out_metrics, "prime,A,x0,trials\n");
 
     unsigned long long p_low;
     unsigned long long current_index = 0;
 
-    // Read every prime until the end of the file
-    while (fscanf(input, "%llu", &p_low) != EOF) {
+    while (fscanf(input, "%llu", &p_low) == 1) {
         current_index++;
 
         u128 p = (u128)p_low;
 
-        printf("[%llu] Processing prime: %llu...\n", current_index, p_low);
+        int target = 5;
+
+        printf("[%llu] Processing prime: %llu (Target: %d)...\n", current_index, p_low, target);
         fflush(stdout);
 
-        unsigned long long A = 0;
-        unsigned long long x0 = 0;
-        unsigned long long trials = 0;
-        int status = 1;
+        u64 out_A_arr[10] = {0}, out_x0_arr[10] = {0}, out_trials_arr[10] = {0};
+        int found_amount = 0;
 
         if (p < ((u128)1 << 63)) {
-            u64 out_A = 0, out_x0 = 0, out_trials = 0;
-            status = search64((u64)p, &out_A, &out_x0, &out_trials);
-            A = (unsigned long long)out_A;
-            x0 = (unsigned long long)out_x0;
-            trials = (unsigned long long)out_trials;
+            found_amount = search64((u64)p, 0, 0, target, out_A_arr, out_x0_arr, out_trials_arr);
         } else {
-            u128 out_A = 0, out_x0 = 0;
-            u64 out_trials = 0;
-            status = search128(p, &out_A, &out_x0, &out_trials);
-            A = (unsigned long long)out_A;
-            x0 = (unsigned long long)out_x0;
-            trials = (unsigned long long)out_trials;
+            u128 out_A128[10] = {0}, out_x0128[10] = {0};
+            found_amount = search128(p, 0, 0, target, out_A128, out_x0128, out_trials_arr);
+            for(int i = 0; i < found_amount; i++) {
+                out_A_arr[i] = (u64)out_A128[i];
+                out_x0_arr[i] = (u64)out_x0128[i];
+            }
         }
 
-        if (status == 0) {
-            fprintf(out_pure, "%llu,%llu,%llu\n", (unsigned long long)p, A, x0);
-            fprintf(out_metrics, "%llu,%llu,%llu,%llu\n", (unsigned long long)p, A, x0, trials);
-            printf("[%llu] Success: solved in %llu trials\n\n", current_index, trials);
+        if (found_amount > 0) {
+
+            for (int i = 0; i < found_amount - 1; i++) {
+                for (int j = 0; j < found_amount - i - 1; j++) {
+                    if (out_trials_arr[j] > out_trials_arr[j+1]) {
+                        u64 temp_t = out_trials_arr[j];
+                        out_trials_arr[j] = out_trials_arr[j+1];
+                        out_trials_arr[j+1] = temp_t;
+                        u64 temp_A = out_A_arr[j];
+                        out_A_arr[j] = out_A_arr[j+1];
+                        out_A_arr[j+1] = temp_A;
+                        u64 temp_x0 = out_x0_arr[j];
+                        out_x0_arr[j] = out_x0_arr[j+1];
+                        out_x0_arr[j+1] = temp_x0;
+                    }
+                }
+            }
+
+            u64 total_new_trials = 0;
+            u64 last_cumulative = 0;
+
+            for (int i = 0; i < found_amount; i++) {
+                u64 marginal_trials = out_trials_arr[i] - last_cumulative;
+
+                last_cumulative = out_trials_arr[i];
+                total_new_trials += marginal_trials;
+
+                fprintf(out_pure, "%llu,%llu,%llu\n", (unsigned long long)p_low, (unsigned long long)out_A_arr[i], (unsigned long long)out_x0_arr[i]);
+                fprintf(out_metrics, "%llu,%llu,%llu,%llu\n", (unsigned long long)p_low, (unsigned long long)out_A_arr[i], (unsigned long long)out_x0_arr[i], marginal_trials);
+            }
+
+            printf("[%llu] Success: found %d triples (Total new trials: %llu)\n\n", current_index, found_amount, total_new_trials);
             fflush(stdout);
+
         } else {
-            fprintf(out_pure, "%llu,FAILED,FAILED\n", (unsigned long long)p);
-            fprintf(out_metrics, "%llu,FAILED,FAILED,FAILED\n", (unsigned long long)p);
-            printf("Failed: %llu\n", (unsigned long long)p);
+            fprintf(out_pure, "%llu,FAILED,FAILED\n", (unsigned long long)p_low);
+            fprintf(out_metrics, "%llu,FAILED,FAILED,FAILED\n", (unsigned long long)p_low);
+            printf("Failed: %llu\n\n", (unsigned long long)p_low);
             fflush(stdout);
         }
     }

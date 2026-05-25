@@ -1,8 +1,0 @@
-=== TRIPLE GENERATION BENCHMARK ===
-Source Primes: ../data/raw/primes_7to11digits_seed1778788627.txt
-Hardware Processing Time: 6.8272 seconds
------------------------------------
-Successful Proofs: 100
-Total A's Tried: 5024840
-Average A's Tried per Prime: 50248.40
------------------------------------

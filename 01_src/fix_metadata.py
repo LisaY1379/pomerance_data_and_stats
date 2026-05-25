@@ -20,11 +20,10 @@ def create_retro_metadata(filepath, min_digits, max_digits, seed):
         "note": "Retroactively created metadata. Exact line count verified."
     }
 
-    meta_path = filepath.replace(".txt", "_meta.json")
+    meta_path = filepath.replace(".txt", "_deleted_duplicates_meta.json")
     with open(meta_path, 'w') as f:
         json.dump(metadata, f, indent=4)
 
     print(f"✅ Success! Created metadata for {os.path.basename(filepath)}: verified {batch_size} primes.")
 
-create_retro_metadata("../data/raw/primes_12to15digits_seed1778788757.txt", 12, 15, 1778788757)
-create_retro_metadata("../data/raw/primes_7to11digits_seed1778788627.txt", 7, 11, 1778788627)
+create_retro_metadata("../data/raw/primes_12to15digits_seed1778731660_full.txt", 12, 15, 1778731660)

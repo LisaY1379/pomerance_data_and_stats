@@ -1,0 +1,8 @@
+=== TRIPLE GENERATION BENCHMARK ===
+Source Primes: ../data/raw/failed_primes.txt
+Hardware Processing Time: 0.2082 seconds
+-----------------------------------
+Successful Proofs: 70
+Total A's Tried: 50498
+Average A's Tried per Prime: 721.40
+-----------------------------------

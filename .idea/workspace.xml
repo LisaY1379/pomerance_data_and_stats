@@ -4,7 +4,43 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e32caff9-6a59-49a4-be37-a0f16221f526" name="Changes" comment="Sixth commit 05/16/2026: Reordered directory, put non-final testing data into /process_time_testing_data" />
+    <list default="true" id="e32caff9-6a59-49a4-be37-a0f16221f526" name="Changes" comment="Seventh commit 05/16/2026: Fixed naming issue">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/ECPP_Logic_AI.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ECPP_Logic_AI.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/fix_metadata.py" beforeDir="false" afterPath="$PROJECT_DIR$/01_src/fix_metadata.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/pomerance.c" beforeDir="false" afterPath="$PROJECT_DIR$/01_src/pomerance.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/pomerance_driver.py" beforeDir="false" afterPath="$PROJECT_DIR$/01_src/pomerance_driver.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/processed/process_time_testing_data/triples_metrics_12to15digits_seed1778788757.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/processed/process_time_testing_data/triples_metrics_7to11digits_seed1778788627.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/processed/process_time_testing_data/triples_pure_12to15digits_seed1778788757.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/processed/process_time_testing_data/triples_pure_7to11digits_seed1778788627.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/processed/triples_metrics_10digits_seed42.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/processed/triples_metrics_12to15digits_seed1778731660.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/processed/triples_metrics_3to6digits_seed1778732485.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/processed/triples_metrics_5digits_seed42.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/processed/triples_metrics_7to11digits_seed1778732562.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/processed/triples_pure_10digits_seed42.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/processed/triples_pure_12to15digits_seed1778731660.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/processed/triples_pure_3to6digits_seed1778732485.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/processed/triples_pure_5digits_seed42.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/processed/triples_pure_7to11digits_seed1778732562.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/raw/primes_12to15digits_seed1778731660.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/raw/primes_12to15digits_seed1778731660.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/raw/primes_12to15digits_seed1778731660_full.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/raw/primes_12to15digits_seed1778731660_full.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/raw/primes_12to15digits_seed1778788757.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/raw/primes_12to15digits_seed1778788757.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/raw/primes_3to6digits_seed1778732485.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/raw/primes_3to6digits_seed1778732485.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/raw/primes_7to11digits_seed1778732562.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/raw/primes_7to11digits_seed1778732562.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/benchmark_10digits_seed42.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/benchmark_5digits_seed42.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/triple_benchmark_10digits_seed42.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/triple_benchmark_12to15digits_seed1778731660_8812to10000.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/triple_benchmark_12to15digits_seed1778788757.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/triple_benchmark_3to6digits_seed1778732485.txt" beforeDir="false" afterPath="$PROJECT_DIR$/reports/triple_benchmark_3to6digits_seed1778732485.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/triple_benchmark_5digits_seed42.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/triple_benchmark_7to11digits_seed1778732562.txt" beforeDir="false" afterPath="$PROJECT_DIR$/reports/triple_benchmark_7to11digits_seed1778732562.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/triple_benchmark_7to11digits_seed1778788627.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/triples_metrics_12to15digits_seed1778731660_report_1to8812.txt" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -47,12 +83,19 @@
     "Python.copy_primes.executor": "Run",
     "Python.csv_edit.executor": "Run",
     "Python.csv_join.executor": "Run",
+    "Python.delete_duplicate_primes.executor": "Run",
+    "Python.delete_duplicates.executor": "Run",
     "Python.fix_metadata.executor": "Run",
     "Python.fix_metadata_triples.executor": "Run",
+    "Python.hypothesis_testing.executor": "Run",
+    "Python.merge.executor": "Run",
+    "Python.merge_csv.executor": "Run",
     "Python.onlyprime.executor": "Run",
     "Python.pomerance_driver.executor": "Run",
     "Python.prime_gen.executor": "Debug",
     "Python.prime_generator.executor": "Run",
+    "Python.sort_data.executor": "Run",
+    "Python.sort_primes.executor": "Run",
     "Python.vpp.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
@@ -63,6 +106,10 @@
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/01_src" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/data/processed" />
+      <recent name="$PROJECT_DIR$/data" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -136,7 +183,15 @@
       <option name="project" value="LOCAL" />
       <updated>1778961968703</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Seventh commit 05/16/2026: Fixed naming issue">
+      <option name="closed" value="true" />
+      <created>1778962076325</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1778962076325</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -146,6 +201,7 @@
     <MESSAGE value="Fourth commit 05/14/2026: Added 20k 7-11 digits" />
     <MESSAGE value="Fifth commit 05/16/2026: Added 10k 12-15 digits" />
     <MESSAGE value="Sixth commit 05/16/2026: Reordered directory, put non-final testing data into /process_time_testing_data" />
-    <option name="LAST_COMMIT_MESSAGE" value="Sixth commit 05/16/2026: Reordered directory, put non-final testing data into /process_time_testing_data" />
+    <MESSAGE value="Seventh commit 05/16/2026: Fixed naming issue" />
+    <option name="LAST_COMMIT_MESSAGE" value="Seventh commit 05/16/2026: Fixed naming issue" />
   </component>
 </project>
