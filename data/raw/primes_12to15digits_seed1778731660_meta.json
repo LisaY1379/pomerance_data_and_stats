@@ -1,9 +1,0 @@
-{
-    "batch_size": 10000,
-    "min_digits": 12,
-    "max_digits": 15,
-    "seed_used": 1778731660,
-    "total_generation_time_seconds": null,
-    "average_time_per_prime_seconds": null,
-    "note": "Retroactively created metadata. Exact line count verified."
-}

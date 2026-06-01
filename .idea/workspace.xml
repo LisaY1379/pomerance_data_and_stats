@@ -4,42 +4,40 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e32caff9-6a59-49a4-be37-a0f16221f526" name="Changes" comment="Seventh commit 05/16/2026: Fixed naming issue">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/ECPP_Logic_AI.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ECPP_Logic_AI.iml" afterDir="false" />
+    <list default="true" id="e32caff9-6a59-49a4-be37-a0f16221f526" name="Changes" comment="Eighth commit 05/25/2026:&#10;1. Sorted data, removed duplicates&#10;2. Fixed algorithmic problems of failing primes caused by ignoring supersingular elliptic curves when searching for triples&#10;3. Performed hypothesis testing on number of trials for primes with the same digit length, conclusion: REJECT H0 that all numbers are generated from the same parameter. This indicates that the difficulty of finding triple for primes similar in size differs significantly and each prime might have unique properties to discover.">
+      <change afterPath="$PROJECT_DIR$/01_src/difficulty_parameters.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/01_src/lrt_pipeline.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/01_src/fix_metadata.py" beforeDir="false" afterPath="$PROJECT_DIR$/01_src/fix_metadata.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/copy_primes.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/fix_metadata.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/fix_reports_triples.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/01_src/pomerance.c" beforeDir="false" afterPath="$PROJECT_DIR$/01_src/pomerance.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/01_src/pomerance_driver.py" beforeDir="false" afterPath="$PROJECT_DIR$/01_src/pomerance_driver.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/processed/process_time_testing_data/triples_metrics_12to15digits_seed1778788757.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/processed/process_time_testing_data/triples_metrics_7to11digits_seed1778788627.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/processed/process_time_testing_data/triples_pure_12to15digits_seed1778788757.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/processed/process_time_testing_data/triples_pure_7to11digits_seed1778788627.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/processed/triples_metrics_10digits_seed42.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/processed/triples_metrics_12to15digits_seed1778731660.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/processed/triples_metrics_3to6digits_seed1778732485.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/processed/triples_metrics_5digits_seed42.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/processed/triples_metrics_7to11digits_seed1778732562.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/processed/triples_pure_10digits_seed42.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/processed/triples_pure_12to15digits_seed1778731660.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/processed/triples_pure_3to6digits_seed1778732485.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/processed/triples_pure_5digits_seed42.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/processed/triples_pure_7to11digits_seed1778732562.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/vpp.py" beforeDir="false" afterPath="$PROJECT_DIR$/01_src/vpp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/triples_metrics_12to15digits_seed1778731660.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/final_data/triples_metrics_12to15digits_seed1778731660.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/triples_metrics_3to6digits_seed1778732485.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/final_data/triples_metrics_3to6digits_seed1778732485.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/triples_metrics_7to11digits_seed1778732562.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/final_data/triples_metrics_7to11digits_seed1778732562.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/triples_pure_12to15digits_seed1778731660.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/final_data/triples_pure_12to15digits_seed1778731660.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/triples_pure_3to6digits_seed1778732485.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/final_data/triples_pure_3to6digits_seed1778732485.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/raw/primes_10digits_seed42.txt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/data/raw/primes_12to15digits_seed1778731660.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/raw/primes_12to15digits_seed1778731660.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/raw/primes_12to15digits_seed1778731660_full.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/raw/primes_12to15digits_seed1778731660_full.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/raw/primes_12to15digits_seed1778788757.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/raw/primes_12to15digits_seed1778788757.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/raw/primes_3to6digits_seed1778732485.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/raw/primes_3to6digits_seed1778732485.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/raw/primes_7to11digits_seed1778732562.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/raw/primes_7to11digits_seed1778732562.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/reports/benchmark_10digits_seed42.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/reports/benchmark_5digits_seed42.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/reports/triple_benchmark_10digits_seed42.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/reports/triple_benchmark_12to15digits_seed1778731660_8812to10000.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/reports/triple_benchmark_12to15digits_seed1778788757.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/reports/triple_benchmark_3to6digits_seed1778732485.txt" beforeDir="false" afterPath="$PROJECT_DIR$/reports/triple_benchmark_3to6digits_seed1778732485.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/reports/triple_benchmark_5digits_seed42.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/reports/triple_benchmark_7to11digits_seed1778732562.txt" beforeDir="false" afterPath="$PROJECT_DIR$/reports/triple_benchmark_7to11digits_seed1778732562.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/reports/triple_benchmark_7to11digits_seed1778788627.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/reports/triples_metrics_12to15digits_seed1778731660_report_1to8812.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/raw/primes_12to15digits_seed1778731660_full.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/raw/primes_12to15digits_seed1778731660_meta.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/raw/primes_12to15digits_seed1778788757.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/raw/primes_12to15digits_seed1778788757_meta.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/raw/primes_12to15digits_seed1778801565.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/raw/primes_3to6digits_seed1778732485_meta.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/raw/primes_5digits_seed42.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/raw/primes_7to11digits_seed1778732562_meta.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/raw/primes_7to11digits_seed1778788627.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/raw/primes_7to11digits_seed1778788627_meta.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/hypothesis_testing.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/lrt_reports/lrt_report_3_digits.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/lrt_reports/lrt_report_4_digits.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/lrt_reports/lrt_report_5_digits.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/lrt_reports/lrt_report_6_digits.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/triple_benchmark_12to15digits_seed1778731660.txt" beforeDir="false" afterPath="$PROJECT_DIR$/reports/triple_benchmark_12to15digits_seed1778731660.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/triple_benchmark_3to6digits_seed1778732562_failed.txt" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -80,14 +78,18 @@
   "keyToString": {
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "Python.benchmark.executor": "Run",
+    "Python.concatenate.executor": "Run",
     "Python.copy_primes.executor": "Run",
     "Python.csv_edit.executor": "Run",
     "Python.csv_join.executor": "Run",
     "Python.delete_duplicate_primes.executor": "Run",
     "Python.delete_duplicates.executor": "Run",
+    "Python.difficulty_parameters.executor": "Run",
+    "Python.duplicate_remove.executor": "Run",
     "Python.fix_metadata.executor": "Run",
     "Python.fix_metadata_triples.executor": "Run",
     "Python.hypothesis_testing.executor": "Run",
+    "Python.lrt_pipeline.executor": "Run",
     "Python.merge.executor": "Run",
     "Python.merge_csv.executor": "Run",
     "Python.onlyprime.executor": "Run",
@@ -96,6 +98,7 @@
     "Python.prime_generator.executor": "Run",
     "Python.sort_data.executor": "Run",
     "Python.sort_primes.executor": "Run",
+    "Python.split.executor": "Run",
     "Python.vpp.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
@@ -108,9 +111,64 @@
       <recent name="$PROJECT_DIR$/01_src" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/data/processed" />
-      <recent name="$PROJECT_DIR$/data" />
+      <recent name="$PROJECT_DIR$/01_src" />
+      <recent name="$PROJECT_DIR$/data/lrt_data/9digits_Pipeline/Simulation_Data" />
+      <recent name="$PROJECT_DIR$/data/lrt_data/8digits_Pipeline/Simulation_Data" />
+      <recent name="$PROJECT_DIR$/data/lrt_data/7digits_Pipeline/Simulation_Data" />
+      <recent name="$PROJECT_DIR$/data/lrt_data/6digits_Pipeline/Simulation_Data" />
     </key>
+  </component>
+  <component name="RunManager" selected="Python.difficulty_parameters">
+    <configuration name="difficulty_parameters" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="ECPP_Logic_AI" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/01_src" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/01_src/difficulty_parameters.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="lrt_pipeline" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="ECPP_Logic_AI" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/01_src" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/01_src/lrt_pipeline.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.difficulty_parameters" />
+        <item itemvalue="Python.lrt_pipeline" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -191,7 +249,15 @@
       <option name="project" value="LOCAL" />
       <updated>1778962076325</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Eighth commit 05/25/2026:&#10;1. Sorted data, removed duplicates&#10;2. Fixed algorithmic problems of failing primes caused by ignoring supersingular elliptic curves when searching for triples&#10;3. Performed hypothesis testing on number of trials for primes with the same digit length, conclusion: REJECT H0 that all numbers are generated from the same parameter. This indicates that the difficulty of finding triple for primes similar in size differs significantly and each prime might have unique properties to discover.">
+      <option name="closed" value="true" />
+      <created>1779739408994</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1779739408994</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -202,6 +268,7 @@
     <MESSAGE value="Fifth commit 05/16/2026: Added 10k 12-15 digits" />
     <MESSAGE value="Sixth commit 05/16/2026: Reordered directory, put non-final testing data into /process_time_testing_data" />
     <MESSAGE value="Seventh commit 05/16/2026: Fixed naming issue" />
-    <option name="LAST_COMMIT_MESSAGE" value="Seventh commit 05/16/2026: Fixed naming issue" />
+    <MESSAGE value="Eighth commit 05/25/2026:&#10;1. Sorted data, removed duplicates&#10;2. Fixed algorithmic problems of failing primes caused by ignoring supersingular elliptic curves when searching for triples&#10;3. Performed hypothesis testing on number of trials for primes with the same digit length, conclusion: REJECT H0 that all numbers are generated from the same parameter. This indicates that the difficulty of finding triple for primes similar in size differs significantly and each prime might have unique properties to discover." />
+    <option name="LAST_COMMIT_MESSAGE" value="Eighth commit 05/25/2026:&#10;1. Sorted data, removed duplicates&#10;2. Fixed algorithmic problems of failing primes caused by ignoring supersingular elliptic curves when searching for triples&#10;3. Performed hypothesis testing on number of trials for primes with the same digit length, conclusion: REJECT H0 that all numbers are generated from the same parameter. This indicates that the difficulty of finding triple for primes similar in size differs significantly and each prime might have unique properties to discover." />
   </component>
 </project>
