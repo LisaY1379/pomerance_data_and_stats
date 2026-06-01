@@ -5,13 +5,13 @@ import csv
 
 
 def run_triple_benchmark(min_digits, max_digits, seed):
-    input_file = os.path.join("..", "data", "raw",
-                              f"primes_{min_digits}to{max_digits}digits_seed{seed}.txt")
+    input_file = os.path.join("..", "data", "final_data",
+                              f"triples_pure_{min_digits}to{max_digits}digits_seed{seed}.txt")
 
-    out_pure = os.path.join("..", "data", "final_data", f"triples_pure_{min_digits}to{max_digits}digits_seed{seed}.txt")
+    out_pure = os.path.join("..", "data", "final_data", f"triples_pure_{min_digits}to{max_digits}digits_seed{seed}_new.txt")
 
     out_metrics = os.path.join("..", "data", "final_data",
-                               f"triples_metrics_{min_digits}to{max_digits}digits_seed{seed}.csv")
+                               f"triples_metrics_{min_digits}to{max_digits}digits_seed{seed}_new.csv")
 
     report_file = os.path.join("..", "reports", f"triple_benchmark_{min_digits}to{max_digits}digits_seed{seed}.txt")
 
@@ -68,4 +68,4 @@ def run_triple_benchmark(min_digits, max_digits, seed):
     print(f"Metrics CSV data in: {out_metrics}")
     print(f"Benchmark saved to: {report_file}")
 
-run_triple_benchmark(min_digits=7, max_digits=11, seed=1778732562)
+run_triple_benchmark(min_digits=12, max_digits=15, seed=1778731660)

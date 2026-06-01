@@ -1,0 +1,14 @@
+Isotonic LRT Report for Triplet 0014 (Interval 3468-3814)
+==================================================
+Target Universe: 4-digits
+Sample Size (per prime): n = 10
+
+--- Empirical Data (Ordered x1 < x2 < x3) ---
+Prime 1: 3593 | Average Trials (y_bar) = 19.00
+Prime 2: 3709 | Average Trials (y_bar) = 36.00
+Prime 3: 3727 | Average Trials (y_bar) = 14.40
+
+--- Statistical Inference ---
+Likelihood Ratio Statistic (T) : 5.170409
+Asymptotic P-Value             : 3.661429e-02
+Verdict: REJECT H0
