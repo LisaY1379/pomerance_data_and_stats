@@ -204,7 +204,7 @@ def run_pipeline(target_digits=3, triplets_per_interval=1, num_simulations=10, s
                 try:
                     subprocess.run(
                         [c_exec_path, temp_input_path, temp_pure_path, csv_metrics_path, str(num_simulations)],
-                        check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+                        check=True
                     )
                 except subprocess.CalledProcessError:
                     global_triplet_id += 1
@@ -287,7 +287,7 @@ def run_pipeline(target_digits=3, triplets_per_interval=1, num_simulations=10, s
 
 if __name__ == "__main__":
     run_pipeline(
-        target_digits=3,
+        target_digits=13,
         triplets_per_interval=1,
         num_simulations=10,
         seed_value=None
