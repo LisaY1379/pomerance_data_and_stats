@@ -4,12 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e32caff9-6a59-49a4-be37-a0f16221f526" name="Changes" comment="Eleventh Commit 06/01/2026:&#10;1. Added 10-12 digits tests&#10;2. Compared p-values under 10 trials &amp; 5 trials">
+    <list default="true" id="e32caff9-6a59-49a4-be37-a0f16221f526" name="Changes" comment="12th Commit 06/01/2026:&#10;1. Added 10-12 digits tests&#10;2. Compared p-values under 10 trials &amp; 5 trials">
+      <change afterPath="$PROJECT_DIR$/01_src/difficulty_parameter_b.sage" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/01_src/used_primes_history.txt" beforeDir="false" afterPath="$PROJECT_DIR$/01_src/used_primes_history.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/lrt_data/13digits_Pipeline/Simulation_Data/triplet_0001_data.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/lrt_data/13digits_Pipeline/Simulation_Data/triplet_0002_data.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/lrt_data/13digits_Pipeline/Sweep_Blueprint_13digits.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/triples_metrics_12to15digits_seed1778731660.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/final_data/triples_metrics_12to15digits_seed1778731660.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/triples_metrics_3to6digits_seed1778732485.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/final_data/triples_metrics_3to6digits_seed1778732485.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/triples_metrics_7to11digits_seed1778732562.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/final_data/triples_metrics_7to11digits_seed1778732562.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/lrt_reports/13digits/triplet_0001_report.txt" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,6 +57,7 @@
     "Python.copy_primes.executor": "Run",
     "Python.csv_edit.executor": "Run",
     "Python.csv_join.executor": "Run",
+    "Python.delete_b.executor": "Run",
     "Python.delete_duplicate_primes.executor": "Run",
     "Python.delete_duplicates.executor": "Run",
     "Python.difficulty_parameters.executor": "Run",
@@ -91,7 +94,7 @@
       <recent name="$PROJECT_DIR$/data/lrt_data/6digits_Pipeline/Simulation_Data" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.lrt_pipeline">
+  <component name="RunManager">
     <configuration name="analyze_pvalues" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="ECPP_Logic_AI" />
       <option name="ENV_FILES" value="" />
@@ -277,7 +280,15 @@
       <option name="project" value="LOCAL" />
       <updated>1780370058580</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="12th Commit 06/01/2026:&#10;1. Added 10-12 digits tests&#10;2. Compared p-values under 10 trials &amp; 5 trials">
+      <option name="closed" value="true" />
+      <created>1780376461816</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1780376461816</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -292,6 +303,7 @@
     <MESSAGE value="Ninth commit 06/01/2026:&#10;1. Refined the trials counting algorithm to only include trials finding A&#10;2. Refined the trials recording algorithm for better accuracy (the previous lc*threads tends to overestimate trials count)&#10;3. Included two parameters (a) (b) in difficulty_parameters.py for evaluating difficulty &#10;4. Initial test for Order-Restricted LRT on primes within a small range (regional largest=1.1*smallest) for H0: p1&gt;=p2&gt;=...&gt;=pk vs H1: unconstrained, rejection rate ranges from 10%-30%" />
     <MESSAGE value="Tenth Commit 06/01/2026:&#10;Fixed problems for failure in uploading lrt_data" />
     <MESSAGE value="Eleventh Commit 06/01/2026:&#10;1. Added 10-12 digits tests&#10;2. Compared p-values under 10 trials &amp; 5 trials" />
-    <option name="LAST_COMMIT_MESSAGE" value="Eleventh Commit 06/01/2026:&#10;1. Added 10-12 digits tests&#10;2. Compared p-values under 10 trials &amp; 5 trials" />
+    <MESSAGE value="12th Commit 06/01/2026:&#10;1. Added 10-12 digits tests&#10;2. Compared p-values under 10 trials &amp; 5 trials" />
+    <option name="LAST_COMMIT_MESSAGE" value="12th Commit 06/01/2026:&#10;1. Added 10-12 digits tests&#10;2. Compared p-values under 10 trials &amp; 5 trials" />
   </component>
 </project>
