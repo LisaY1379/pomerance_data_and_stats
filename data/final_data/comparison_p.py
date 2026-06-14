@@ -4,7 +4,7 @@ import os
 import time
 
 
-def run_convergence_experiment(primes_file, ground_truth_file, c_executable='./pomerance'):
+def run_convergence_experiment(primes_file, ground_truth_file, c_executable='/Users/catgpt/Documents/ECPP_Logic_AI/01_src/pomerance'):
     print("=== Starting Convergence Benchmark ===")
 
     # 1. Load Ground Truth Data
@@ -18,7 +18,7 @@ def run_convergence_experiment(primes_file, ground_truth_file, c_executable='./p
     print(f"Successfully loaded ground truth data for {len(truth_map)} primes.")
 
     # Create a directory to store all intermediate and final results
-    output_dir = "../reports/p_stats/experiment_results"
+    output_dir = "/Users/catgpt/Documents/ECPP_Logic_AI/reports/p_stats/experiment_results"
     os.makedirs(output_dir, exist_ok=True)
     print(f"All intermediate data will be saved to the '{output_dir}' directory.")
 
@@ -121,8 +121,8 @@ def run_convergence_experiment(primes_file, ground_truth_file, c_executable='./p
 
 if __name__ == "__main__":
     # Ensure these paths match your actual files
-    PRIMES_TXT = "sampled_primes_input.txt"
-    GROUND_TRUTH_CSV = "sampled_primes_ground_truth.csv"
-    C_EXECUTABLE = "./pomerance"
+    PRIMES_TXT = "/Users/catgpt/Documents/ECPP_Logic_AI/data/final_data/sampled_primes_input.txt"
+    GROUND_TRUTH_CSV = "/Users/catgpt/Documents/ECPP_Logic_AI/data/final_data/sampled_primes_ground_truth.csv"
+    C_EXECUTABLE = "/Users/catgpt/Documents/ECPP_Logic_AI/01_src/pomerance"
 
     run_convergence_experiment(PRIMES_TXT, GROUND_TRUTH_CSV, C_EXECUTABLE)

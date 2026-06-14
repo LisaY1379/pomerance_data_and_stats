@@ -35,7 +35,7 @@ def process_and_sample_prefixes(input_file, output_txt, output_csv, sample_size=
     for p, a_count in prime_a_counts.items():
         digits = len(str(p))
         if 3 <= digits <= 5:
-            probability = a_count / p
+            probability = a_count / (p - 2)
             primes_by_digits[digits].append({
                 'prime': p,
                 'a_count': a_count,
@@ -75,7 +75,7 @@ def process_and_sample_prefixes(input_file, output_txt, output_csv, sample_size=
 
 
 if __name__ == "__main__":
-    INPUT_FILE = "../data/final_data/pp16A.txt"
+    INPUT_FILE = "/data/p_data/pp16A.txt"
 
     OUTPUT_TXT = "sampled_primes_input.txt"
 

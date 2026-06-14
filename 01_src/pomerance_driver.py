@@ -74,4 +74,4 @@ def run_triple_benchmark(min_digits, max_digits, seed, num_triples=10):
     print(f"Metrics CSV data in: {out_metrics}")
     print(f"Benchmark saved to: {report_file}")
 
-run_triple_benchmark(min_digits=12, max_digits=15, seed=1778731660, num_triples=5)
+run_triple_benchmark(min_digits=3, max_digits=6, seed=1778732485, num_triples=5)

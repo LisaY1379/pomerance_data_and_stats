@@ -388,7 +388,7 @@ static int search64(u64 p, int target_count, u64 *out_A, u64 *out_x0, u64 *out_t
 
         while (found_count < target_count && A_trials < budget) {
             u64 A = rng64(&rng) % p;
-            if (A<=2||A>=p-2) { continue; }
+            if (A==2||A==p-2) { continue; }
 
             A_trials++;
             thread_trials[tid * 8] = A_trials;
@@ -496,7 +496,7 @@ static int search128(u128 p, int target_count, u128 *out_A, u128 *out_x0, u64 *o
 
         while (found_count < target_count && A_trials < budget) {
             u128 A = (u128)rng64(&rng) | ((u128)rng64(&rng) << 64); A %= p;
-            if (A<=2 || A>=p-2) continue;
+            if (A==2 || A==p-2) continue;
 
             A_trials++;
             thread_trials[tid * 8] = A_trials;
