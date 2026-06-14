@@ -12,7 +12,7 @@ Dep. Variable:                 trials   R-squared:                       0.701
 Model:                            OLS   Adj. R-squared:                  0.701
 Method:                 Least Squares   F-statistic:                 3.100e+04
 Date:                Sun, 14 Jun 2026   Prob (F-statistic):               0.00
-Time:                        18:26:07   Log-Likelihood:            -4.9216e+05
+Time:                        18:52:16   Log-Likelihood:            -4.9216e+05
 No. Observations:               39573   AIC:                         9.843e+05
 Df Residuals:                   39569   BIC:                         9.844e+05
 Df Model:                           3                                         
@@ -46,7 +46,7 @@ Dep. Variable:             log_trials   R-squared:                       0.417
 Model:                            OLS   Adj. R-squared:                  0.417
 Method:                 Least Squares   F-statistic:                     9447.
 Date:                Sun, 14 Jun 2026   Prob (F-statistic):               0.00
-Time:                        18:26:07   Log-Likelihood:                -86816.
+Time:                        18:52:16   Log-Likelihood:                -86816.
 No. Observations:               39573   AIC:                         1.736e+05
 Df Residuals:                   39569   BIC:                         1.737e+05
 Df Model:                           3                                         
@@ -80,7 +80,7 @@ Dep. Variable:             log_trials   R-squared:                       0.962
 Model:                            OLS   Adj. R-squared:                  0.962
 Method:                 Least Squares   F-statistic:                 3.360e+05
 Date:                Sun, 14 Jun 2026   Prob (F-statistic):               0.00
-Time:                        18:26:07   Log-Likelihood:                -32677.
+Time:                        18:52:17   Log-Likelihood:                -32677.
 No. Observations:               39573   AIC:                         6.536e+04
 Df Residuals:                   39569   BIC:                         6.540e+04
 Df Model:                           3                                         
@@ -101,5 +101,13 @@ Kurtosis:                       3.259   Cond. No.                         70.8
 
 Notes:
 [1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+
+--- Exact Significance Test (P-Values) for Model 3 ---
+Note: Values extremely close to 0 confirm highly significant impact.
+
+Intercept      : 0.0000e+00
+log_sqrt_p     : 0.0000e+00
+log_a          : 0.0000e+00
+log_b          : 0.0000e+00
 
 ==============================================================================

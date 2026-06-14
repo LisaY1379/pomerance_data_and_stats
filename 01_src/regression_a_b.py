@@ -74,10 +74,23 @@ def run_regression_analysis(csv_file, output_report_file="regression_summary_rep
         model_log_log = smf.ols('log_trials ~ log_sqrt_p + log_a + log_b', data=df_agg).fit()
         print(model_log_log.summary())
 
+        # Print exact p-values to the console
+        print("\n=== Exact P-Values for Model 3 ===")
+        print(model_log_log.pvalues)
+
         f.write("=== Model 3: Log-Log Linear Regression ===\n")
         f.write("Equation: log(trials) = beta0 + beta1 * log(sqrt_p) + beta2 * log(a) + beta3 * log(b)\n")
         f.write(model_log_log.summary().as_text())
-        f.write("\n\n==============================================================================\n")
+
+        # Add the exact p-values to the text report
+        f.write("\n\n--- Exact Significance Test (P-Values) for Model 3 ---\n")
+        f.write("Note: Values extremely close to 0 confirm highly significant impact.\n\n")
+
+        # Format the p-values in scientific notation (e.g., 1.23e-45)
+        for param, pval in model_log_log.pvalues.items():
+            f.write(f"{param:<15}: {pval:.4e}\n")
+
+        f.write("\n==============================================================================\n")
 
     print(f"\n[Success] Full regression report successfully saved to: {output_report_file}")
 
