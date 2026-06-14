@@ -1,0 +1,105 @@
+==============================================================================
+                 ECPP Complexity Regression Analysis Report                   
+==============================================================================
+Source Data File: /Users/catgpt/Documents/ECPP_Logic_AI/data/final_data/all_triples_combined.csv
+Total Unique Primes Analyzed: 39573
+
+=== Model 1: Standard Multiple Linear Regression (OLS) ===
+Equation: trials = beta0 + beta1 * sqrt_p + beta2 * a + beta3 * b
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:                 trials   R-squared:                       0.701
+Model:                            OLS   Adj. R-squared:                  0.701
+Method:                 Least Squares   F-statistic:                 3.100e+04
+Date:                Sun, 14 Jun 2026   Prob (F-statistic):               0.00
+Time:                        18:26:07   Log-Likelihood:            -4.9216e+05
+No. Observations:               39573   AIC:                         9.843e+05
+Df Residuals:                   39569   BIC:                         9.844e+05
+Df Model:                           3                                         
+Covariance Type:            nonrobust                                         
+=================================================================================
+                    coef    std err          t      P>|t|      [0.025      0.975]
+---------------------------------------------------------------------------------
+Intercept      3.001e+04   1237.944     24.245      0.000    2.76e+04    3.24e+04
+sqrt_p            0.3003      0.002    169.731      0.000       0.297       0.304
+param_a_count -1.128e+04    436.668    -25.833      0.000   -1.21e+04   -1.04e+04
+class_number     -0.1250      0.003    -43.506      0.000      -0.131      -0.119
+==============================================================================
+Omnibus:                    55497.723   Durbin-Watson:                   1.781
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):         52961201.689
+Skew:                           7.801   Prob(JB):                         0.00
+Kurtosis:                     181.539   Cond. No.                     2.10e+06
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+[2] The condition number is large, 2.1e+06. This might indicate that there are
+strong multicollinearity or other numerical problems.
+
+================================================================================
+
+=== Model 2: Semi-Log Linear Regression (Log-Linear) ===
+Equation: log(trials) = beta0 + beta1 * sqrt_p + beta2 * a + beta3 * b
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:             log_trials   R-squared:                       0.417
+Model:                            OLS   Adj. R-squared:                  0.417
+Method:                 Least Squares   F-statistic:                     9447.
+Date:                Sun, 14 Jun 2026   Prob (F-statistic):               0.00
+Time:                        18:26:07   Log-Likelihood:                -86816.
+No. Observations:               39573   AIC:                         1.736e+05
+Df Residuals:                   39569   BIC:                         1.737e+05
+Df Model:                           3                                         
+Covariance Type:            nonrobust                                         
+=================================================================================
+                    coef    std err          t      P>|t|      [0.025      0.975]
+---------------------------------------------------------------------------------
+Intercept         5.6571      0.044    128.349      0.000       5.571       5.743
+sqrt_p         4.678e-06    6.3e-08     74.265      0.000    4.55e-06     4.8e-06
+param_a_count     0.2665      0.016     17.138      0.000       0.236       0.297
+class_number  -2.829e-07   1.02e-07     -2.766      0.006   -4.83e-07   -8.25e-08
+==============================================================================
+Omnibus:                     9344.177   Durbin-Watson:                   0.134
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):             1688.941
+Skew:                           0.061   Prob(JB):                         0.00
+Kurtosis:                       1.995   Cond. No.                     2.10e+06
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+[2] The condition number is large, 2.1e+06. This might indicate that there are
+strong multicollinearity or other numerical problems.
+
+================================================================================
+
+=== Model 3: Log-Log Linear Regression ===
+Equation: log(trials) = beta0 + beta1 * log(sqrt_p) + beta2 * log(a) + beta3 * log(b)
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:             log_trials   R-squared:                       0.962
+Model:                            OLS   Adj. R-squared:                  0.962
+Method:                 Least Squares   F-statistic:                 3.360e+05
+Date:                Sun, 14 Jun 2026   Prob (F-statistic):               0.00
+Time:                        18:26:07   Log-Likelihood:                -32677.
+No. Observations:               39573   AIC:                         6.536e+04
+Df Residuals:                   39569   BIC:                         6.540e+04
+Df Model:                           3                                         
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept     -0.9049      0.013    -68.744      0.000      -0.931      -0.879
+log_sqrt_p     1.2858      0.006    207.634      0.000       1.274       1.298
+log_a         -0.8715      0.011    -81.461      0.000      -0.892      -0.850
+log_b         -0.2924      0.006    -48.036      0.000      -0.304      -0.280
+==============================================================================
+Omnibus:                      470.456   Durbin-Watson:                   1.915
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):              504.614
+Skew:                          -0.244   Prob(JB):                    2.66e-110
+Kurtosis:                       3.259   Cond. No.                         70.8
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+
+==============================================================================

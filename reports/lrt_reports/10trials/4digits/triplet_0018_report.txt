@@ -1,14 +1,14 @@
 Isotonic LRT Report for Triplet 0018 (Interval 5079-5586)
 ==================================================
 Target Universe: 4-digits
-Sample Size (per prime): n = 10
+Initial Scheduled Sample Size: n = 10
 
 --- Empirical Data (Ordered x1 < x2 < x3) ---
-Prime 1: 5099 | Average Trials (y_bar) = 30.30
-Prime 2: 5227 | Average Trials (y_bar) = 21.30
-Prime 3: 5573 | Average Trials (y_bar) = 31.30
+Prime 1: 5081 | Average Trials (y_bar) = 18.9000 | Valid 'n' = 10
+Prime 2: 5531 | Average Trials (y_bar) = 25.9000 | Valid 'n' = 10
+Prime 3: 5581 | Average Trials (y_bar) = 6.1000 | Valid 'n' = 10
 
 --- Statistical Inference ---
-Likelihood Ratio Statistic (T) : 0.663291
-Asymptotic P-Value             : 4.469475e-01
-Verdict: FAIL TO REJECT H0
+Likelihood Ratio Statistic (T) : 10.704128
+Asymptotic P-Value             : 2.113938e-03
+Verdict: REJECT H0

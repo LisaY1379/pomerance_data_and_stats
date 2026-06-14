@@ -2,11 +2,11 @@
 📊 4 digits P-Value Analysis
 ==================================================
 Total Number of Analysis Reports: 25
-P-Value mean : 0.501252
-P-Value median : 0.541830
-P-Value minimum : 1.823941e-07
+P-Value mean : 0.547407
+P-Value median : 0.656280
+P-Value minimum : 1.951966e-03
 P-Value maximum : 1.000000
 --------------------------------------------------
-Total number of rejection 3
-Rate of rejection: 12.00%
+Total number of rejection 4
+Rate of rejection: 16.00%
 ==================================================

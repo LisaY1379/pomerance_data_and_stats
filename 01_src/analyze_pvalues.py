@@ -10,7 +10,7 @@ def analyze_p_values(target_digits):
     else:
         project_root = current_dir
 
-    reports_dir = project_root / 'reports' / 'lrt_reports' / '5trials' / f'{target_digits}digits'
+    reports_dir = project_root / 'reports' / 'lrt_reports' / '10trials' / f'{target_digits}digits'
 
     if not reports_dir.exists():
         print(f"❌ Error: Cannot find target directory -> {reports_dir}")
@@ -77,5 +77,4 @@ def analyze_p_values(target_digits):
         print("⚠️ Scanning complete, but no valid p-values.")
 
 if __name__ == "__main__":
-    for i in range (10):
-        analyze_p_values(target_digits=i)
+    analyze_p_values(target_digits=11)

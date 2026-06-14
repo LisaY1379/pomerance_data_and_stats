@@ -1,14 +1,14 @@
 Isotonic LRT Report for Triplet 0022 (Interval 740025035-814027538)
 ==================================================
 Target Universe: 9-digits
-Sample Size (per prime): n = 5
+Initial Scheduled Sample Size: n = 5
 
 --- Empirical Data (Ordered x1 < x2 < x3) ---
-Prime 1: 756835559 | Average Trials (y_bar) = 8451.60
-Prime 2: 790202983 | Average Trials (y_bar) = 8140.20
-Prime 3: 801123139 | Average Trials (y_bar) = 3217.60
+Prime 1: 760218929 | Average Trials (y_bar) = 8038.0000 | Valid 'n' = 5
+Prime 2: 791835049 | Average Trials (y_bar) = 4980.2000 | Valid 'n' = 5
+Prime 3: 793662563 | Average Trials (y_bar) = 2633.6000 | Valid 'n' = 5
 
 --- Statistical Inference ---
-Likelihood Ratio Statistic (T) : 2.750271
-Asymptotic P-Value             : 1.328874e-01
+Likelihood Ratio Statistic (T) : 2.979838
+Asymptotic P-Value             : 1.172842e-01
 Verdict: FAIL TO REJECT H0

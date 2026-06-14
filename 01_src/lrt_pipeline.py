@@ -12,6 +12,8 @@ import scipy.stats as stats
 pari = cypari2.Pari()
 
 
+# ================= Prime Generation =================
+
 def generate_ecpp_primes_for_interval(start_val, end_val, required_count, rng, history_file="used_primes_history.txt"):
     """
     Attempts to sample `required_count` unique primes within a specific physical interval [start_val, end_val].
@@ -52,31 +54,60 @@ def generate_ecpp_primes_for_interval(start_val, end_val, required_count, rng, h
     return list(proven_primes)
 
 
-# ================= LRT Engine (Maintained exact math core) =================
+# ================= Corrected LRT Engine =================
 
 def geometric_log_likelihood(n, y_bar, p):
+    """
+    Log-likelihood for Geometric distribution.
+    n: actual sample size for this specific group.
+    """
     if p <= 0 or p >= 1: return -np.inf
     return n * np.log(p) + n * (y_bar - 1) * np.log(1 - p)
 
 
-def run_pava_decreasing(y_bars):
-    p_hat = [1.0 / y for y in y_bars]
-    w = [1.0] * len(y_bars)
-    m = list(p_hat)
+def run_pava_for_geometric(y_bars):
+    """
+    Correct Isotonic Regression (PAVA) for Geometric distributions.
+    Pools sufficient statistics (y_bar) using strict arithmetic means to preserve block integrity.
+    """
+    y = np.array(y_bars, dtype=float)
+    original_y = np.array(y_bars, dtype=float)
+    n = len(y)
+
     while True:
         violates = False
-        for i in range(len(m) - 1):
-            if m[i] < m[i + 1] - 1e-9:
-                new_val = (m[i] * w[i] + m[i + 1] * w[i + 1]) / (w[i] + w[i + 1])
-                m[i] = m[i + 1] = new_val
-                new_w = w[i] + w[i + 1]
-                w[i] = w[i + 1] = new_w
+        for i in range(n - 1):
+            if y[i] > y[i + 1] + 1e-9:  # Violation of monotonicity: y_1 <= y_2 <= y_3
+                # Find full block boundaries for y[i] and y[i+1]
+                left = i
+                while left > 0 and abs(y[left - 1] - y[i]) < 1e-9:
+                    left -= 1
+                right = i + 1
+                while right < n - 1 and abs(y[right + 1] - y[i + 1]) < 1e-9:
+                    right += 1
+
+                # Unbiased pooling of the original raw means
+                pool_val = np.mean(original_y[left:right + 1])
+
+                # Update entire block uniformly
+                for j in range(left, right + 1):
+                    y[j] = pool_val
+
                 violates = True
-        if not violates: break
-    return m
+                break  # Reset scan from the beginning after a merge
+
+        if not violates:
+            break
+
+    # Convert y_tilde back to p_tilde
+    return [1.0 / val for val in y]
 
 
 def get_level_probabilities(k):
+    """
+    Generates level probabilities (weights) equivalent to unsigned Stirling numbers of the first kind.
+    Strictly assumes equal sample sizes across all groups.
+    """
     dp = np.zeros((k + 1, k + 1))
     dp[1][1] = 1.0
     for i in range(2, k + 1):
@@ -85,12 +116,18 @@ def get_level_probabilities(k):
     return dp[k][1:]
 
 
-def perform_lrt(n, y_bars):
+def perform_lrt(n_array, y_bars):
+    """
+    Executes the Likelihood Ratio Test using the exact n for each prime.
+    """
     k = len(y_bars)
     p_hat = [1.0 / y for y in y_bars]
-    p_tilde = run_pava_decreasing(y_bars)
-    l_unconstrained = sum(geometric_log_likelihood(n, y_bars[i], p_hat[i]) for i in range(k))
-    l_constrained = sum(geometric_log_likelihood(n, y_bars[i], p_tilde[i]) for i in range(k))
+    p_tilde = run_pava_for_geometric(y_bars)
+
+    # Calculate likelihoods using the exact counts (n_array)
+    l_unconstrained = sum(geometric_log_likelihood(n_array[i], y_bars[i], p_hat[i]) for i in range(k))
+    l_constrained = sum(geometric_log_likelihood(n_array[i], y_bars[i], p_tilde[i]) for i in range(k))
+
     T_stat = 2 * (l_unconstrained - l_constrained)
     if T_stat < 1e-8: T_stat = 0.0
 
@@ -101,7 +138,9 @@ def perform_lrt(n, y_bars):
         P_lk = get_level_probabilities(k)
         for l_minus_1, prob in enumerate(P_lk):
             df = k - (l_minus_1 + 1)
-            if df > 0: p_value += prob * stats.chi2.sf(T_stat, df)
+            if df > 0:
+                p_value += prob * stats.chi2.sf(T_stat, df)
+
     return T_stat, p_value, p_hat, p_tilde
 
 
@@ -211,16 +250,28 @@ def run_pipeline(target_digits=3, triplets_per_interval=1, num_simulations=10, s
                     continue
 
             try:
+                # ================= Data Aggregation & LRT Execution =================
                 df = pd.read_csv(csv_metrics_path)
                 df = df[df['trials'] != 'FAILED']
                 df['trials'] = pd.to_numeric(df['trials'])
-                agg_df = df.groupby('prime')['trials'].mean().reset_index().sort_values(by='prime').reset_index(
-                    drop=True)
+
+                # Extract BOTH mean (y_bar) and valid count (n)
+                agg_df = df.groupby('prime')['trials'].agg(['mean', 'count']).reset_index().sort_values(
+                    by='prime').reset_index(drop=True)
 
                 if len(agg_df) == 3:
-                    y_bars = agg_df['trials'].tolist()
+                    y_bars = agg_df['mean'].tolist()
+                    n_array = agg_df['count'].tolist()
                     primes = agg_df['prime'].tolist()
-                    T_stat, p_value, p_hat, p_tilde = perform_lrt(num_simulations, y_bars)
+
+                    warning_flag = False
+                    if len(set(n_array)) > 1:
+                        warning_flag = True
+                        print(
+                            f"  ⚠️ Warning for Triplet {global_triplet_id:04d}: Non-uniform sample sizes detected {n_array} due to FAILED drops. P-value is an approximation.")
+
+                    # Pass exact counts to the LRT engine
+                    T_stat, p_value, p_hat, p_tilde = perform_lrt(n_array, y_bars)
 
                     is_rejected = p_value < 0.05
                     if is_rejected:
@@ -235,16 +286,21 @@ def run_pipeline(target_digits=3, triplets_per_interval=1, num_simulations=10, s
                             f"Isotonic LRT Report for Triplet {global_triplet_id:04d} (Interval {start_val}-{end_val})\n")
                         f.write("=" * 50 + "\n")
                         f.write(f"Target Universe: {target_digits}-digits\n")
-                        f.write(f"Sample Size (per prime): n = {num_simulations}\n\n")
+                        if warning_flag:
+                            f.write(
+                                f"⚠️ WARNING: Unequal sample sizes {n_array}. Stirling number weights are approximated.\n")
+                        f.write(f"Initial Scheduled Sample Size: n = {num_simulations}\n\n")
                         f.write("--- Empirical Data (Ordered x1 < x2 < x3) ---\n")
-                        for idx, (pr, y) in enumerate(zip(primes, y_bars)):
-                            f.write(f"Prime {idx + 1}: {pr} | Average Trials (y_bar) = {y:.2f}\n")
+                        for idx, (pr, y, actual_n) in enumerate(zip(primes, y_bars, n_array)):
+                            f.write(
+                                f"Prime {idx + 1}: {pr} | Average Trials (y_bar) = {y:.4f} | Valid 'n' = {actual_n}\n")
                         f.write("\n--- Statistical Inference ---\n")
                         f.write(f"Likelihood Ratio Statistic (T) : {T_stat:.6f}\n")
                         f.write(f"Asymptotic P-Value             : {p_value:.6e}\n")
                         f.write(f"Verdict: {'REJECT H0' if is_rejected else 'FAIL TO REJECT H0'}\n")
 
-            except Exception:
+            except Exception as e:
+                print(f"  ❌ Error processing Triplet {global_triplet_id:04d}: {e}")
                 pass
 
             global_triplet_id += 1
@@ -261,7 +317,6 @@ def run_pipeline(target_digits=3, triplets_per_interval=1, num_simulations=10, s
 
     # ================= 4. Export Radar Sweep Master Report =================
 
-    # 💡 Calculate and append the Global Summary row before saving the CSV
     global_rate = round((total_rejections / total_valid) * 100, 2) if total_valid > 0 else None
     sweep_results.append({
         "Interval_ID": "GLOBAL_SUMMARY",
@@ -286,9 +341,14 @@ def run_pipeline(target_digits=3, triplets_per_interval=1, num_simulations=10, s
 
 
 if __name__ == "__main__":
-    run_pipeline(
-        target_digits=13,
-        triplets_per_interval=1,
-        num_simulations=10,
-        seed_value=None
-    )
+    for i in range(3, 12):
+        print(f"\n{'#' * 50}")
+        print(f"🚀 INITIATING PIPELINE FOR {i}-DIGIT PRIMES")
+        print(f"{'#' * 50}")
+
+        run_pipeline(
+            target_digits=i,
+            triplets_per_interval=1,
+            num_simulations=10,
+            seed_value=None
+        )

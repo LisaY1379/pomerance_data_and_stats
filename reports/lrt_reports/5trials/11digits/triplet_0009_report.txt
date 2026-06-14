@@ -1,0 +1,14 @@
+Isotonic LRT Report for Triplet 0009 (Interval 21435888108-23579476918)
+==================================================
+Target Universe: 11-digits
+Initial Scheduled Sample Size: n = 5
+
+--- Empirical Data (Ordered x1 < x2 < x3) ---
+Prime 1: 21856092451 | Average Trials (y_bar) = 13533.0000 | Valid 'n' = 5
+Prime 2: 22202465429 | Average Trials (y_bar) = 3930.0000 | Valid 'n' = 5
+Prime 3: 23498013001 | Average Trials (y_bar) = 26260.0000 | Valid 'n' = 5
+
+--- Statistical Inference ---
+Likelihood Ratio Statistic (T) : 3.601534
+Asymptotic P-Value             : 8.392051e-02
+Verdict: FAIL TO REJECT H0
