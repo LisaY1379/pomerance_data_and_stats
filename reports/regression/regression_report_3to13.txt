@@ -1,0 +1,49 @@
+==============================================================================
+                 ECPP Complexity Regression Analysis Report                   
+==============================================================================
+Source Data File: /Users/catgpt/Documents/ECPP_Logic_AI/data/final_data/all_triples_combined.csv
+Total Unique Primes Analyzed: 39573
+
+=== Advanced Model: Log-Log Regression with Categorical 'a' ===
+Equation: log(trials) = beta0 + beta1 * log(sqrt_p) + beta_a(1,2,3,4) + beta3 * log(b)
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:             log_trials   R-squared:                       0.962
+Model:                            OLS   Adj. R-squared:                  0.962
+Method:                 Least Squares   F-statistic:                 2.017e+05
+Date:                Sun, 21 Jun 2026   Prob (F-statistic):               0.00
+Time:                        00:05:02   Log-Likelihood:                -32667.
+No. Observations:               39573   AIC:                         6.535e+04
+Df Residuals:                   39567   BIC:                         6.540e+04
+Df Model:                           5                                         
+Covariance Type:            nonrobust                                         
+=========================================================================================
+                            coef    std err          t      P>|t|      [0.025      0.975]
+-----------------------------------------------------------------------------------------
+Intercept                -0.7915      0.030    -26.363      0.000      -0.850      -0.733
+C(param_a_count)[T.2]    -0.7264      0.030    -24.365      0.000      -0.785      -0.668
+C(param_a_count)[T.3]    -1.0706      0.030    -35.914      0.000      -1.129      -1.012
+C(param_a_count)[T.4]    -1.3218      0.031    -43.289      0.000      -1.382      -1.262
+log_sqrt_p                1.2864      0.006    207.720      0.000       1.274       1.299
+log_b                    -0.2927      0.006    -48.099      0.000      -0.305      -0.281
+==============================================================================
+Omnibus:                      480.051   Durbin-Watson:                   1.916
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):              514.654
+Skew:                          -0.248   Prob(JB):                    1.76e-112
+Kurtosis:                       3.258   Cond. No.                         266.
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+
+--- Exact Significance Test (P-Values) ---
+Note: Values extremely close to 0 confirm highly significant impact.
+
+Intercept                     : 7.4734e-152
+C(param_a_count)[T.2]         : 3.6412e-130
+C(param_a_count)[T.3]         : 5.5471e-278
+C(param_a_count)[T.4]         : 0.0000e+00
+log_sqrt_p                    : 0.0000e+00
+log_b                         : 0.0000e+00
+
+==============================================================================

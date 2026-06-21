@@ -1,354 +1,186 @@
 import os
 import csv
-import subprocess
-import tempfile
-import time
-import cypari2
 import numpy as np
 import pandas as pd
-import scipy.stats as stats
-
-# Initialize the PARI/GP engine inside Python
-pari = cypari2.Pari()
-
-
-# ================= Prime Generation =================
-
-def generate_ecpp_primes_for_interval(start_val, end_val, required_count, rng, history_file="used_primes_history.txt"):
-    """
-    Attempts to sample `required_count` unique primes within a specific physical interval [start_val, end_val].
-    Features a Global Blacklist to prevent cross-run collisions and a circuit breaker for prime deserts.
-    """
-    global_history = set()
-
-    # 1. Load historical blacklist to ensure absolute uniqueness across multiple script executions
-    if os.path.exists(history_file):
-        with open(history_file, 'r', encoding='utf-8') as f:
-            for line in f:
-                val = line.strip()
-                if val:
-                    global_history.add(int(val))
-
-    proven_primes = set()
-    attempts = 0
-    # Safety lock: Max 2000 blind attempts per interval
-    max_attempts = max(2000, required_count * 100)
-
-    while len(proven_primes) < required_count and attempts < max_attempts:
-        attempts += 1
-        # Blind sample within the current 1.1x micro-window
-        candidate = int(rng.integers(start_val, end_val + 1))
-
-        # Check against both the current batch AND the global history
-        if candidate not in proven_primes and candidate not in global_history:
-            if pari.ispseudoprime(candidate):
-                if pari.isprime(candidate, 3):
-                    proven_primes.add(candidate)
-
-    # 2. Append newly found primes to the global blacklist
-    if proven_primes:
-        with open(history_file, 'a', encoding='utf-8') as f:
-            for p in proven_primes:
-                f.write(f"{p}\n")
-
-    return list(proven_primes)
+import time
+from sklearn.isotonic import IsotonicRegression
+from joblib import Parallel, delayed
 
 
-# ================= Corrected LRT Engine =================
+# ================= Core Algorithm Module =================
 
 def geometric_log_likelihood(n, y_bar, p):
-    """
-    Log-likelihood for Geometric distribution.
-    n: actual sample size for this specific group.
-    """
-    if p <= 0 or p >= 1: return -np.inf
+    """Log-likelihood function for the Geometric distribution"""
+    # Restrict p bounds to prevent math domain error or -inf
+    p = np.clip(p, 1e-12, 1 - 1e-12)
     return n * np.log(p) + n * (y_bar - 1) * np.log(1 - p)
 
 
-def run_pava_for_geometric(y_bars):
+def run_pava_for_geometric(y_bars, n_array):
     """
-    Correct Isotonic Regression (PAVA) for Geometric distributions.
-    Pools sufficient statistics (y_bar) using strict arithmetic means to preserve block integrity.
+    [ULTRA-FAST VERSION] Isotonic Regression (PAVA) using scikit-learn.
+    Constraint direction: increasing=True (H0 assumes trials increase as primes get larger).
     """
-    y = np.array(y_bars, dtype=float)
-    original_y = np.array(y_bars, dtype=float)
-    n = len(y)
+    # Instantiate: Explicitly set to 'monotonically increasing' constraint for trials
+    ir = IsotonicRegression(increasing=True, out_of_bounds='clip')
 
-    while True:
-        violates = False
-        for i in range(n - 1):
-            if y[i] > y[i + 1] + 1e-9:  # Violation of monotonicity: y_1 <= y_2 <= y_3
-                # Find full block boundaries for y[i] and y[i+1]
-                left = i
-                while left > 0 and abs(y[left - 1] - y[i]) < 1e-9:
-                    left -= 1
-                right = i + 1
-                while right < n - 1 and abs(y[right + 1] - y[i + 1]) < 1e-9:
-                    right += 1
+    # Construct dummy X-axis features (order: 0, 1, 2... k-1)
+    x = np.arange(len(y_bars))
 
-                # Unbiased pooling of the original raw means
-                pool_val = np.mean(original_y[left:right + 1])
+    # Fit the algorithm and output the pooled y_bars directly
+    y_pooled = ir.fit_transform(x, y_bars, sample_weight=n_array)
 
-                # Update entire block uniformly
-                for j in range(left, right + 1):
-                    y[j] = pool_val
-
-                violates = True
-                break  # Reset scan from the beginning after a merge
-
-        if not violates:
-            break
-
-    # Convert y_tilde back to p_tilde
-    return [1.0 / val for val in y]
+    # Convert back to Geometric distribution probability (p_tilde)
+    return 1.0 / y_pooled
 
 
-def get_level_probabilities(k):
+def calculate_lrt_statistic(n_array, y_bars):
     """
-    Generates level probabilities (weights) equivalent to unsigned Stirling numbers of the first kind.
-    Strictly assumes equal sample sizes across all groups.
-    """
-    dp = np.zeros((k + 1, k + 1))
-    dp[1][1] = 1.0
-    for i in range(2, k + 1):
-        for l in range(1, i + 1):
-            dp[i][l] = ((i - 1) / i) * dp[i - 1][l] + (1 / i) * dp[i - 1][l - 1]
-    return dp[k][1:]
-
-
-def perform_lrt(n_array, y_bars):
-    """
-    Executes the Likelihood Ratio Test using the exact n for each prime.
+    Calculate the LRT statistic T for testing FOR Order Restriction.
+    H0: Isotonic (Difficulty/trials strictly monotonically increasing or flat)
+    H1: Unconstrained (Wild fluctuations, completely random patterns)
     """
     k = len(y_bars)
-    p_hat = [1.0 / y for y in y_bars]
-    p_tilde = run_pava_for_geometric(y_bars)
 
-    # Calculate likelihoods using the exact counts (n_array)
-    l_unconstrained = sum(geometric_log_likelihood(n_array[i], y_bars[i], p_hat[i]) for i in range(k))
-    l_constrained = sum(geometric_log_likelihood(n_array[i], y_bars[i], p_tilde[i]) for i in range(k))
+    # Unconstrained probability MLE (p_hat) - fits the raw data perfectly (H1)
+    p_hat = 1.0 / np.array(y_bars)
 
+    # Isotonically constrained probability MLE (p_tilde) - strictly increasing (H0)
+    p_tilde = run_pava_for_geometric(y_bars, n_array)
+
+    # Global MLE under the Least Favorable Configuration (LFC) of H0 - completely flat
+    global_y_bar = np.sum(np.array(n_array) * np.array(y_bars)) / np.sum(n_array)
+    p_0 = np.full(k, 1.0 / global_y_bar)
+
+    # 1. Log-likelihood L (Unconstrained H1)
+    l_unconstrained = np.sum([geometric_log_likelihood(n_array[i], y_bars[i], p_hat[i]) for i in range(k)])
+
+    # 2. Log-likelihood L (Isotonic Constrained H0)
+    l_constrained = np.sum([geometric_log_likelihood(n_array[i], y_bars[i], p_tilde[i]) for i in range(k)])
+
+    # Core modification: T measures how much better the Unconstrained model is compared to the Isotonic model.
+    # T = 2 * ( L(Unconstrained) - L(Isotonic) )
     T_stat = 2 * (l_unconstrained - l_constrained)
     if T_stat < 1e-8: T_stat = 0.0
 
-    if T_stat == 0:
-        p_value = 1.0
+    return T_stat, p_tilde, p_0[0]
+
+
+# ================= Parallel Monte Carlo Engine =================
+
+def single_simulation(n_array_np, p_0):
+    """A single atomic Monte Carlo iteration, separated for parallelization."""
+    simulated_failures = np.random.negative_binomial(n_array_np, p_0)
+    simulated_total_trials = simulated_failures + n_array_np
+    simulated_y_bars = simulated_total_trials / n_array_np
+
+    T_sim, _, _ = calculate_lrt_statistic(n_array_np, simulated_y_bars)
+    return T_sim
+
+
+def monte_carlo_p_value(n_array, p_0, observed_T, num_simulations=10000):
+    """
+    Simulates the null distribution (H0) using all available CPU cores via joblib.
+    """
+    print(f"⏳ Firing up all CPU cores for {num_simulations} parallel Monte Carlo simulations...")
+    n_array_np = np.array(n_array)
+
+    # Parallelize the workload across all CPU threads (n_jobs=-1)
+    simulated_T_stats = Parallel(n_jobs=-1, batch_size="auto")(
+        delayed(single_simulation)(n_array_np, p_0) for _ in range(num_simulations)
+    )
+
+    simulated_T_stats = np.array(simulated_T_stats)
+
+    # P-value = proportion of simulated T stats >= observed T
+    p_value = np.sum(simulated_T_stats >= observed_T) / num_simulations
+    return p_value, simulated_T_stats
+
+
+# ================= Main Control Flow =================
+
+def run_global_lrt(input_csv, digits, num_simulations=10000):
+    if not os.path.exists(input_csv):
+        print(f"❌ Error: File not found {input_csv}")
+        return
+
+    print(f"\n📂 Reading full dataset: {input_csv}")
+
+    df = pd.read_csv(input_csv)
+    df['trials'] = df['trials'].astype(str)
+    df = df[df['trials'].str.upper() != 'FAILED']
+    df['trials'] = pd.to_numeric(df['trials'])
+    df['prime'] = pd.to_numeric(df['prime'])
+
+    # Group, aggregate and strictly sort by prime
+    agg_df = df.groupby('prime')['trials'].agg(['mean', 'count']).reset_index()
+    agg_df = agg_df.sort_values(by='prime').reset_index(drop=True)
+
+    k = len(agg_df)
+    print(f"✅ Successfully loaded aggregated data for {k} primes.")
+    print("🚀 Running Test FOR Order Restriction (H0: Monotonically Increasing Difficulty)")
+
+    primes = agg_df['prime'].tolist()
+    y_bars = agg_df['mean'].tolist()
+    n_array = agg_df['count'].tolist()
+
+    start_time = time.time()
+
+    # 1. Real Data T Statistic
+    observed_T, p_tilde, p_0 = calculate_lrt_statistic(n_array, y_bars)
+
+    # 2. Parallel Monte Carlo P-Value
+    p_value, _ = monte_carlo_p_value(n_array, p_0, observed_T, num_simulations)
+
+    end_time = time.time()
+
+    # ================= Output Report =================
+    report_file = f"Global_LRT_Report_{digits}_digits.txt"
+    is_rejected = p_value < 0.05
+
+    with open(report_file, 'w', encoding='utf-8') as f:
+        f.write("=== Isotonic Likelihood Ratio Test (Test FOR Order Restriction) ===\n")
+        f.write(f"Data Source: {input_csv}\n")
+        f.write(f"Test Dimension (k): {k} primes\n")
+        f.write(f"Monte Carlo Simulations: {num_simulations}\n")
+        f.write(f"Global Base Success Rate (LFC p_0): {p_0:.6f}\n")
+        f.write("-" * 65 + "\n")
+        f.write("Hypothesis Frame:\n")
+        f.write("  H0: Search difficulty (trials) is monotonically increasing or flat.\n")
+        f.write("  H1: Search difficulty is completely unconstrained (wild fluctuations).\n")
+        f.write("-" * 65 + "\n")
+        f.write(f"Observed LRT Statistic (T) : {observed_T:.6f}\n")
+        f.write(f"Monte Carlo P-Value        : {p_value:.6e}\n")
+
+        # Inverted conclusion logic specific to "Test For Order Restriction"
+        if is_rejected:
+            f.write(
+                "Final Statistical Verdict  : REJECT H0 (Data fluctuates too wildly; strictly increasing difficulty is rejected)\n")
+        else:
+            f.write(
+                "Final Statistical Verdict  : FAIL TO REJECT H0 (Data is statistically consistent with a monotonically increasing trend)\n")
+
+        f.write("-" * 65 + "\n")
+        f.write(f"Computation Time: {end_time - start_time:.2f} seconds\n\n")
+
+        f.write("--- Isotonically Smoothed Inference Parameters (p_tilde) for Each Prime ---\n")
+        for i in range(k):
+            f.write(
+                f"Prime: {primes[i]:<15} | Original Mean y_bar: {y_bars[i]:>8.2f} | Fitted Prob p_tilde: {p_tilde[i]:.6f} | Sample Size n: {n_array[i]}\n")
+
+    print("\n" + "=" * 65)
+    print(f"🎉 Global LRT Analysis Complete! Time elapsed: {end_time - start_time:.2f} seconds.")
+    print(f"  - Observed T Statistic : {observed_T:.4f}")
+    print(f"  - Monte Carlo P-Value  : {p_value:.6e}")
+    if is_rejected:
+        print(f"  - Conclusion           : REJECT H0 (The trend is NOT purely monotonically increasing)")
     else:
-        p_value = 0.0
-        P_lk = get_level_probabilities(k)
-        for l_minus_1, prob in enumerate(P_lk):
-            df = k - (l_minus_1 + 1)
-            if df > 0:
-                p_value += prob * stats.chi2.sf(T_stat, df)
-
-    return T_stat, p_value, p_hat, p_tilde
-
-
-# ================= Main Stratified Pipeline =================
-
-def run_pipeline(target_digits=3, triplets_per_interval=1, num_simulations=10, seed_value=None):
-    if seed_value is None:
-        seed_value = int(time.time())
-    rng = np.random.default_rng(seed_value)
-
-    print(f"\n🚀 Starting {target_digits}-digit Decimal Radar Sweep (1.1x Micro-Slicing Mode)...")
-
-    # ================= 1. Path Resolution =================
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    project_root = os.path.dirname(script_dir)
-
-    c_exec_path = os.path.join(script_dir, "pomerance")
-    if os.name == 'nt' and not os.path.exists(c_exec_path): c_exec_path += ".exe"
-    if not os.path.exists(c_exec_path): raise FileNotFoundError(f"❌ C executable not found at: {c_exec_path}")
-
-    # Create distinct directories based on target_digits
-    lrt_data_dir = os.path.join(project_root, 'data', 'lrt_data', f'{target_digits}digits_Pipeline')
-    sim_data_dir = os.path.join(lrt_data_dir, "Simulation_Data")
-    os.makedirs(sim_data_dir, exist_ok=True)
-
-    reports_dir = os.path.join(project_root, 'reports', 'lrt_reports', f'{target_digits}digits')
-    os.makedirs(reports_dir, exist_ok=True)
-
-    # Initialize the Master Blueprint File
-    blueprint_path = os.path.join(lrt_data_dir, f"Sweep_Blueprint_{target_digits}digits.csv")
-    with open(blueprint_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
-        writer.writerow(["Interval_Range", "Triplet_ID", "Prime_1", "Prime_2", "Prime_3"])
-
-    # ================= 2. Partition 1.1x Intervals =================
-    intervals = []
-    current_start = 10 ** (target_digits - 1)
-    upper_limit = (10 ** target_digits) - 1
-
-    while current_start < upper_limit:
-        current_end = int(current_start * 1.1)
-        if current_end > upper_limit:
-            current_end = upper_limit
-        intervals.append((current_start, current_end))
-        current_start = current_end + 1  # Add 1 to prevent overlapping bounds
-
-    print(f"📏 Universe partitioned: Sliced into {len(intervals)} independent 1.1x micro-intervals.")
-
-    # ================= 3. Interval-by-Interval Scanning =================
-    sweep_results = []
-    global_triplet_id = 1
-    total_rejections = 0
-    total_valid = 0
-
-    required_primes_per_interval = triplets_per_interval * 3
-
-    for interval_idx, (start_val, end_val) in enumerate(intervals):
-        interval_id = interval_idx + 1
-        print(f"\n📡 [Interval {interval_id}/{len(intervals)}] Scanning range: {start_val} - {end_val} ...")
-
-        # Sample primes within the current geometric interval
-        pool_primes = generate_ecpp_primes_for_interval(start_val, end_val, required_primes_per_interval, rng)
-
-        # Circuit Breaker
-        if len(pool_primes) < 3:
-            print(f"  ⚠️ Prime Desert! Only {len(pool_primes)} primes found. Skipping interval.")
-            sweep_results.append({
-                "Interval_ID": interval_id, "Start": start_val, "End": end_val,
-                "Valid_Triplets": 0, "Rejections": 0, "Rejection_Rate": None
-            })
-            continue
-
-        # Sort and assemble into triplets
-        sorted_primes = sorted(pool_primes)
-        triplets_list = [tuple(sorted_primes[i: i + 3]) for i in range(0, len(sorted_primes) - 2, 3)]
-
-        print(f"  🎯 Successfully assembled {len(triplets_list)} triplets. Dispatching to C program court...")
-
-        interval_rejections = 0
-        interval_valid = 0
-
-        # Execute C Simulation & LRT
-        for triplet in triplets_list:
-
-            # Log this specific triplet to the Master Blueprint immediately
-            with open(blueprint_path, 'a', newline='', encoding='utf-8') as f:
-                writer = csv.writer(f)
-                writer.writerow([f"{start_val}-{end_val}", global_triplet_id, triplet[0], triplet[1], triplet[2]])
-
-            csv_metrics_path = os.path.join(sim_data_dir, f"triplet_{global_triplet_id:04d}_data.csv")
-            report_path = os.path.join(reports_dir, f"triplet_{global_triplet_id:04d}_report.txt")
-
-            with tempfile.TemporaryDirectory() as temp_dir:
-                temp_input_path = os.path.join(temp_dir, "temp_primes.txt")
-                temp_pure_path = os.path.join(temp_dir, "temp_pure.csv")
-
-                with open(temp_input_path, 'w', encoding='utf-8') as f:
-                    for prime in triplet: f.write(f"{prime}\n")
-
-                try:
-                    subprocess.run(
-                        [c_exec_path, temp_input_path, temp_pure_path, csv_metrics_path, str(num_simulations)],
-                        check=True
-                    )
-                except subprocess.CalledProcessError:
-                    global_triplet_id += 1
-                    continue
-
-            try:
-                # ================= Data Aggregation & LRT Execution =================
-                df = pd.read_csv(csv_metrics_path)
-                df = df[df['trials'] != 'FAILED']
-                df['trials'] = pd.to_numeric(df['trials'])
-
-                # Extract BOTH mean (y_bar) and valid count (n)
-                agg_df = df.groupby('prime')['trials'].agg(['mean', 'count']).reset_index().sort_values(
-                    by='prime').reset_index(drop=True)
-
-                if len(agg_df) == 3:
-                    y_bars = agg_df['mean'].tolist()
-                    n_array = agg_df['count'].tolist()
-                    primes = agg_df['prime'].tolist()
-
-                    warning_flag = False
-                    if len(set(n_array)) > 1:
-                        warning_flag = True
-                        print(
-                            f"  ⚠️ Warning for Triplet {global_triplet_id:04d}: Non-uniform sample sizes detected {n_array} due to FAILED drops. P-value is an approximation.")
-
-                    # Pass exact counts to the LRT engine
-                    T_stat, p_value, p_hat, p_tilde = perform_lrt(n_array, y_bars)
-
-                    is_rejected = p_value < 0.05
-                    if is_rejected:
-                        interval_rejections += 1
-                        total_rejections += 1
-                    interval_valid += 1
-                    total_valid += 1
-
-                    # Write individual Triplet Report
-                    with open(report_path, 'w', encoding='utf-8') as f:
-                        f.write(
-                            f"Isotonic LRT Report for Triplet {global_triplet_id:04d} (Interval {start_val}-{end_val})\n")
-                        f.write("=" * 50 + "\n")
-                        f.write(f"Target Universe: {target_digits}-digits\n")
-                        if warning_flag:
-                            f.write(
-                                f"⚠️ WARNING: Unequal sample sizes {n_array}. Stirling number weights are approximated.\n")
-                        f.write(f"Initial Scheduled Sample Size: n = {num_simulations}\n\n")
-                        f.write("--- Empirical Data (Ordered x1 < x2 < x3) ---\n")
-                        for idx, (pr, y, actual_n) in enumerate(zip(primes, y_bars, n_array)):
-                            f.write(
-                                f"Prime {idx + 1}: {pr} | Average Trials (y_bar) = {y:.4f} | Valid 'n' = {actual_n}\n")
-                        f.write("\n--- Statistical Inference ---\n")
-                        f.write(f"Likelihood Ratio Statistic (T) : {T_stat:.6f}\n")
-                        f.write(f"Asymptotic P-Value             : {p_value:.6e}\n")
-                        f.write(f"Verdict: {'REJECT H0' if is_rejected else 'FAIL TO REJECT H0'}\n")
-
-            except Exception as e:
-                print(f"  ❌ Error processing Triplet {global_triplet_id:04d}: {e}")
-                pass
-
-            global_triplet_id += 1
-
-        # Record macroscopic data for the current interval
-        sweep_results.append({
-            "Interval_ID": interval_id,
-            "Start": start_val,
-            "End": end_val,
-            "Valid_Triplets": interval_valid,
-            "Rejections": interval_rejections,
-            "Rejection_Rate": round((interval_rejections / interval_valid) * 100, 2) if interval_valid > 0 else None
-        })
-
-    # ================= 4. Export Radar Sweep Master Report =================
-
-    global_rate = round((total_rejections / total_valid) * 100, 2) if total_valid > 0 else None
-    sweep_results.append({
-        "Interval_ID": "GLOBAL_SUMMARY",
-        "Start": "ALL",
-        "End": "ALL",
-        "Valid_Triplets": total_valid,
-        "Rejections": total_rejections,
-        "Rejection_Rate": global_rate
-    })
-
-    sweep_df = pd.DataFrame(sweep_results)
-    sweep_report_path = os.path.join(reports_dir, f"Sweep_Report_{target_digits}digits.csv")
-    sweep_df.to_csv(sweep_report_path, index=False)
-
-    print("\n" + "=" * 50)
-    print(f"🎉 {target_digits}-digit Universe Sweep successfully completed!")
-    print(f"📊 Processed {total_valid} valid triplet tests.")
-    if total_valid > 0:
-        print(f"🚨 Global Rejection Rate: {global_rate}%")
-    print(f"📈 Detailed 1.1x slice heatmap data saved to: {sweep_report_path}")
-    print("=" * 50 + "\n")
+        print(f"  - Conclusion           : FAIL TO REJECT H0 (Consistent with increasing difficulty)")
+    print(f"📄 Detailed report saved to: {report_file}")
+    print("=" * 65 + "\n")
 
 
 if __name__ == "__main__":
-    for i in range(3, 12):
-        print(f"\n{'#' * 50}")
-        print(f"🚀 INITIATING PIPELINE FOR {i}-DIGIT PRIMES")
-        print(f"{'#' * 50}")
-
-        run_pipeline(
-            target_digits=i,
-            triplets_per_interval=1,
-            num_simulations=10,
-            seed_value=None
-        )
+    for digits in range(10, 14):
+        target_csv = f"../data/final_data/prime_{digits}_digits.csv"
+        run_global_lrt(target_csv, digits, num_simulations=10000)

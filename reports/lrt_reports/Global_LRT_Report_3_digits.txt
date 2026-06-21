@@ -1,0 +1,160 @@
+=== Isotonic Likelihood Ratio Test (Test FOR Order Restriction) ===
+Data Source: ../data/final_data/prime_3_digits.csv
+Test Dimension (k): 143 primes
+Monte Carlo Simulations: 10000
+Global Base Success Rate (LFC p_0): 0.122374
+-----------------------------------------------------------------
+Hypothesis Frame:
+  H0: Search difficulty (trials) is monotonically increasing or flat.
+  H1: Search difficulty is completely unconstrained (wild fluctuations).
+-----------------------------------------------------------------
+Observed LRT Statistic (T) : 614.181524
+Monte Carlo P-Value        : 0.000000e+00
+Final Statistical Verdict  : REJECT H0 (Data fluctuates too wildly; strictly increasing difficulty is rejected)
+-----------------------------------------------------------------
+Computation Time: 1.69 seconds
+
+--- Isotonically Smoothed Inference Parameters (p_tilde) for Each Prime ---
+Prime: 101             | Original Mean y_bar:     7.20 | Fitted Prob p_tilde: 0.180905 | Sample Size n: 20
+Prime: 103             | Original Mean y_bar:     7.40 | Fitted Prob p_tilde: 0.180905 | Sample Size n: 20
+Prime: 107             | Original Mean y_bar:     6.00 | Fitted Prob p_tilde: 0.180905 | Sample Size n: 20
+Prime: 109             | Original Mean y_bar:     4.75 | Fitted Prob p_tilde: 0.180905 | Sample Size n: 20
+Prime: 113             | Original Mean y_bar:     3.80 | Fitted Prob p_tilde: 0.180905 | Sample Size n: 20
+Prime: 127             | Original Mean y_bar:     8.05 | Fitted Prob p_tilde: 0.180905 | Sample Size n: 20
+Prime: 131             | Original Mean y_bar:     5.00 | Fitted Prob p_tilde: 0.180905 | Sample Size n: 20
+Prime: 137             | Original Mean y_bar:     4.80 | Fitted Prob p_tilde: 0.180905 | Sample Size n: 20
+Prime: 139             | Original Mean y_bar:     2.75 | Fitted Prob p_tilde: 0.180905 | Sample Size n: 20
+Prime: 149             | Original Mean y_bar:     6.90 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 151             | Original Mean y_bar:     9.00 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 157             | Original Mean y_bar:    10.95 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 163             | Original Mean y_bar:     9.45 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 167             | Original Mean y_bar:     5.95 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 173             | Original Mean y_bar:     4.40 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 179             | Original Mean y_bar:     2.90 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 181             | Original Mean y_bar:     4.90 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 191             | Original Mean y_bar:     5.25 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 193             | Original Mean y_bar:     7.45 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 197             | Original Mean y_bar:     6.10 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 199             | Original Mean y_bar:     3.10 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 211             | Original Mean y_bar:     3.20 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 223             | Original Mean y_bar:    33.70 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 227             | Original Mean y_bar:     4.15 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 229             | Original Mean y_bar:     8.70 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 233             | Original Mean y_bar:     6.00 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 239             | Original Mean y_bar:     6.25 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 241             | Original Mean y_bar:     4.40 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 251             | Original Mean y_bar:     5.95 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 257             | Original Mean y_bar:     5.35 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 263             | Original Mean y_bar:     4.55 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 269             | Original Mean y_bar:     4.90 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 271             | Original Mean y_bar:     6.10 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 277             | Original Mean y_bar:     3.90 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 281             | Original Mean y_bar:     3.65 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 283             | Original Mean y_bar:     3.35 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 293             | Original Mean y_bar:     4.60 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 307             | Original Mean y_bar:     3.25 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 311             | Original Mean y_bar:     3.45 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 313             | Original Mean y_bar:    10.25 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 317             | Original Mean y_bar:     7.75 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 331             | Original Mean y_bar:     4.15 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 337             | Original Mean y_bar:     6.10 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 347             | Original Mean y_bar:     5.85 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 349             | Original Mean y_bar:     5.25 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 353             | Original Mean y_bar:     6.50 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 359             | Original Mean y_bar:     4.35 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 367             | Original Mean y_bar:     6.80 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 373             | Original Mean y_bar:     2.70 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 379             | Original Mean y_bar:     3.85 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 383             | Original Mean y_bar:     6.55 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 389             | Original Mean y_bar:     3.40 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 397             | Original Mean y_bar:     4.70 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 401             | Original Mean y_bar:     4.40 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 409             | Original Mean y_bar:     4.85 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 419             | Original Mean y_bar:     4.50 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 421             | Original Mean y_bar:     4.30 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 431             | Original Mean y_bar:     7.00 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 433             | Original Mean y_bar:     7.05 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 439             | Original Mean y_bar:     3.55 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 443             | Original Mean y_bar:     2.55 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 449             | Original Mean y_bar:     5.15 | Fitted Prob p_tilde: 0.169140 | Sample Size n: 20
+Prime: 457             | Original Mean y_bar:     6.20 | Fitted Prob p_tilde: 0.164179 | Sample Size n: 20
+Prime: 461             | Original Mean y_bar:     7.95 | Fitted Prob p_tilde: 0.164179 | Sample Size n: 20
+Prime: 463             | Original Mean y_bar:     4.75 | Fitted Prob p_tilde: 0.164179 | Sample Size n: 20
+Prime: 467             | Original Mean y_bar:     6.40 | Fitted Prob p_tilde: 0.164179 | Sample Size n: 20
+Prime: 479             | Original Mean y_bar:     8.00 | Fitted Prob p_tilde: 0.164179 | Sample Size n: 20
+Prime: 487             | Original Mean y_bar:     6.25 | Fitted Prob p_tilde: 0.164179 | Sample Size n: 20
+Prime: 491             | Original Mean y_bar:     5.15 | Fitted Prob p_tilde: 0.164179 | Sample Size n: 20
+Prime: 499             | Original Mean y_bar:     7.05 | Fitted Prob p_tilde: 0.164179 | Sample Size n: 20
+Prime: 503             | Original Mean y_bar:     4.75 | Fitted Prob p_tilde: 0.164179 | Sample Size n: 20
+Prime: 509             | Original Mean y_bar:     6.25 | Fitted Prob p_tilde: 0.164179 | Sample Size n: 20
+Prime: 521             | Original Mean y_bar:     4.25 | Fitted Prob p_tilde: 0.164179 | Sample Size n: 20
+Prime: 523             | Original Mean y_bar:     6.80 | Fitted Prob p_tilde: 0.156863 | Sample Size n: 20
+Prime: 541             | Original Mean y_bar:     5.95 | Fitted Prob p_tilde: 0.156863 | Sample Size n: 20
+Prime: 547             | Original Mean y_bar:     6.80 | Fitted Prob p_tilde: 0.147059 | Sample Size n: 20
+Prime: 557             | Original Mean y_bar:    10.80 | Fitted Prob p_tilde: 0.101225 | Sample Size n: 20
+Prime: 563             | Original Mean y_bar:    11.25 | Fitted Prob p_tilde: 0.101225 | Sample Size n: 20
+Prime: 569             | Original Mean y_bar:     8.15 | Fitted Prob p_tilde: 0.101225 | Sample Size n: 20
+Prime: 571             | Original Mean y_bar:    14.80 | Fitted Prob p_tilde: 0.101225 | Sample Size n: 20
+Prime: 577             | Original Mean y_bar:    11.55 | Fitted Prob p_tilde: 0.101225 | Sample Size n: 20
+Prime: 587             | Original Mean y_bar:     9.35 | Fitted Prob p_tilde: 0.101225 | Sample Size n: 20
+Prime: 593             | Original Mean y_bar:    15.20 | Fitted Prob p_tilde: 0.101225 | Sample Size n: 20
+Prime: 599             | Original Mean y_bar:     6.55 | Fitted Prob p_tilde: 0.101225 | Sample Size n: 20
+Prime: 601             | Original Mean y_bar:     9.90 | Fitted Prob p_tilde: 0.101225 | Sample Size n: 20
+Prime: 607             | Original Mean y_bar:     5.85 | Fitted Prob p_tilde: 0.101225 | Sample Size n: 20
+Prime: 613             | Original Mean y_bar:     8.55 | Fitted Prob p_tilde: 0.101225 | Sample Size n: 20
+Prime: 617             | Original Mean y_bar:    16.10 | Fitted Prob p_tilde: 0.101225 | Sample Size n: 20
+Prime: 619             | Original Mean y_bar:     4.80 | Fitted Prob p_tilde: 0.101225 | Sample Size n: 20
+Prime: 631             | Original Mean y_bar:     6.55 | Fitted Prob p_tilde: 0.101225 | Sample Size n: 20
+Prime: 641             | Original Mean y_bar:    15.45 | Fitted Prob p_tilde: 0.101225 | Sample Size n: 20
+Prime: 643             | Original Mean y_bar:     5.35 | Fitted Prob p_tilde: 0.101225 | Sample Size n: 20
+Prime: 647             | Original Mean y_bar:     8.10 | Fitted Prob p_tilde: 0.101225 | Sample Size n: 20
+Prime: 653             | Original Mean y_bar:    14.70 | Fitted Prob p_tilde: 0.101225 | Sample Size n: 20
+Prime: 659             | Original Mean y_bar:     4.70 | Fitted Prob p_tilde: 0.101225 | Sample Size n: 20
+Prime: 661             | Original Mean y_bar:    12.75 | Fitted Prob p_tilde: 0.098568 | Sample Size n: 20
+Prime: 673             | Original Mean y_bar:    10.40 | Fitted Prob p_tilde: 0.098568 | Sample Size n: 20
+Prime: 677             | Original Mean y_bar:    19.65 | Fitted Prob p_tilde: 0.098568 | Sample Size n: 20
+Prime: 683             | Original Mean y_bar:     8.70 | Fitted Prob p_tilde: 0.098568 | Sample Size n: 20
+Prime: 691             | Original Mean y_bar:    20.95 | Fitted Prob p_tilde: 0.098568 | Sample Size n: 20
+Prime: 701             | Original Mean y_bar:    19.35 | Fitted Prob p_tilde: 0.098568 | Sample Size n: 20
+Prime: 709             | Original Mean y_bar:    15.85 | Fitted Prob p_tilde: 0.098568 | Sample Size n: 20
+Prime: 719             | Original Mean y_bar:     5.40 | Fitted Prob p_tilde: 0.098568 | Sample Size n: 20
+Prime: 727             | Original Mean y_bar:     8.85 | Fitted Prob p_tilde: 0.098568 | Sample Size n: 20
+Prime: 733             | Original Mean y_bar:     6.00 | Fitted Prob p_tilde: 0.098568 | Sample Size n: 20
+Prime: 739             | Original Mean y_bar:    10.00 | Fitted Prob p_tilde: 0.098568 | Sample Size n: 20
+Prime: 743             | Original Mean y_bar:     4.40 | Fitted Prob p_tilde: 0.098568 | Sample Size n: 20
+Prime: 751             | Original Mean y_bar:     7.40 | Fitted Prob p_tilde: 0.098568 | Sample Size n: 20
+Prime: 757             | Original Mean y_bar:     5.95 | Fitted Prob p_tilde: 0.098568 | Sample Size n: 20
+Prime: 761             | Original Mean y_bar:     7.85 | Fitted Prob p_tilde: 0.098568 | Sample Size n: 20
+Prime: 769             | Original Mean y_bar:    11.10 | Fitted Prob p_tilde: 0.098568 | Sample Size n: 20
+Prime: 773             | Original Mean y_bar:     6.90 | Fitted Prob p_tilde: 0.098568 | Sample Size n: 20
+Prime: 787             | Original Mean y_bar:     8.85 | Fitted Prob p_tilde: 0.098568 | Sample Size n: 20
+Prime: 797             | Original Mean y_bar:     7.35 | Fitted Prob p_tilde: 0.098568 | Sample Size n: 20
+Prime: 809             | Original Mean y_bar:    10.20 | Fitted Prob p_tilde: 0.098568 | Sample Size n: 20
+Prime: 811             | Original Mean y_bar:     5.15 | Fitted Prob p_tilde: 0.098568 | Sample Size n: 20
+Prime: 821             | Original Mean y_bar:    10.85 | Fitted Prob p_tilde: 0.092166 | Sample Size n: 20
+Prime: 823             | Original Mean y_bar:    15.60 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20
+Prime: 827             | Original Mean y_bar:    33.45 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20
+Prime: 829             | Original Mean y_bar:    18.90 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20
+Prime: 839             | Original Mean y_bar:    19.65 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20
+Prime: 853             | Original Mean y_bar:    15.95 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20
+Prime: 857             | Original Mean y_bar:    18.35 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20
+Prime: 859             | Original Mean y_bar:     6.35 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20
+Prime: 863             | Original Mean y_bar:    12.85 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20
+Prime: 877             | Original Mean y_bar:     7.05 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20
+Prime: 881             | Original Mean y_bar:    10.45 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20
+Prime: 883             | Original Mean y_bar:    10.00 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20
+Prime: 887             | Original Mean y_bar:     3.45 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20
+Prime: 907             | Original Mean y_bar:     6.30 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20
+Prime: 911             | Original Mean y_bar:    10.70 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20
+Prime: 919             | Original Mean y_bar:     8.40 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20
+Prime: 929             | Original Mean y_bar:     9.80 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20
+Prime: 937             | Original Mean y_bar:     9.15 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20
+Prime: 941             | Original Mean y_bar:    12.45 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20
+Prime: 947             | Original Mean y_bar:     6.95 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20
+Prime: 953             | Original Mean y_bar:    15.55 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20
+Prime: 967             | Original Mean y_bar:     8.20 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20
+Prime: 971             | Original Mean y_bar:     9.85 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20
+Prime: 977             | Original Mean y_bar:     9.60 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20
+Prime: 983             | Original Mean y_bar:    12.50 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20
+Prime: 991             | Original Mean y_bar:     8.15 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20
+Prime: 997             | Original Mean y_bar:     7.65 | Fitted Prob p_tilde: 0.084608 | Sample Size n: 20

@@ -1,27 +1,11 @@
 /*
- * pomerance.c — Find Pomerance triples (p, A, x0) for a given prime p
- *
- * A Pomerance triple (p, A, x0) is defined as follows: p is an odd prime,
- * A and x0 are nonneg integers < p with A ≠ ±2 mod p, such that doubling
- * the projective point (x0:1) on the Montgomery curve By^2 = x^3+Ax^2+x
- * exactly k times yields Z ≡ 0 mod p, where k is the least integer with
- * 2^k > floor(sqrt(p)) + 1 + 2*floor(sqrt(floor(sqrt(p)))).
- *
- * Algorithm: 2-Sylow projection.  For each candidate group order N = 2^k·m
- * in the Hasse interval, multiply a random point by the odd part m first
- * (projecting into the 2-Sylow subgroup), then double.  This gives
- * O(1/sqrt(p)) success probability per random (A, x0) trial.
- *
- * Automatically uses u64 arithmetic for p < 2^63, u128 for p < 2^127.
- *
- * Compile:
+ * pomerance.c — Incremental generation of Pomerance triples (p, A, x0)
+ * * Compile:
  * gcc -O3 -fopenmp -o pomerance pomerance.c -lm
  * gcc -O3 -o pomerance pomerance.c -lm           (single-threaded)
  *
  * Usage:
- * ./pomerance <input_primes.txt> <output_pure.csv> <output_metrics.csv> <num_triples>
- *
- * Reference: https://github.com/AndrewVSutherland/DANGER3
+ * ./pomerance <stateful_input.txt> <output_pure_new.csv> <output_metrics_new.csv> <target_total>
  */
 
 #include <stdio.h>
@@ -39,12 +23,14 @@ typedef uint64_t u64;
 typedef __uint128_t u128;
 
 /* ================================================================
- * Parsing / printing u128
+ * Parsing / printing u128 (Advanced parser for multiple ints per line)
  * ================================================================ */
 
-static u128 parse128(const char *s) {
+static u128 parse128_adv(char **s) {
+    while (**s == ' ' || **s == '\t' || **s == '\n' || **s == '\r') (*s)++;
+    if (**s == '\0') return 0;
     u128 v = 0;
-    while (*s >= '0' && *s <= '9') { v = v * 10 + (*s - '0'); s++; }
+    while (**s >= '0' && **s <= '9') { v = v * 10 + (**s - '0'); (*s)++; }
     return v;
 }
 
@@ -54,10 +40,6 @@ static void sprint128(char *buf, u128 v) {
     while (v > 0) { tmp[--i] = '0' + (int)(v % 10); v /= 10; }
     strcpy(buf, tmp + i);
 }
-
-static void print128(u128 v) { char b[50]; sprint128(b, v); fputs(b, stdout); }
-
-static int digits128(u128 v) { char b[50]; sprint128(b, v); return (int)strlen(b); }
 
 /* ================================================================
  * PRNG (xorshift128+)
@@ -274,7 +256,7 @@ static int verify128(u128 p, u128 A, u128 x0) {
 }
 
 /* ================================================================
- * Shared: compute_k, odd parts, Miller-Rabin (all u128-safe)
+ * Shared: compute_k, odd parts
  * ================================================================ */
 
 static int compute_k(u128 p) {
@@ -307,8 +289,6 @@ static int compute_odd_parts(u128 p, int k, u64 *ms, int max_ms) {
                 if (sign > 0) tv = (long long)(res + j * twok);
                 else           tv = (long long)res - (long long)((j+1) * twok);
                 if (tv > (long long)two_sqrtp || tv < -(long long)two_sqrtp) break;
-                //CODE UPDATE: Commented out the line abandoning supersingular elliptic curve
-                //if (tv == 0) continue;
                 u128 N = pp1;
                 if (ri == 0) { if (tv>=0) N-=(u64)tv; else N+=(u64)(-tv); }
                 else         { if (tv>=0) N+=(u64)tv; else N-=(u64)(-tv); }
@@ -328,31 +308,12 @@ static int compute_odd_parts(u128 p, int k, u64 *ms, int max_ms) {
     return count;
 }
 
-static int is_prime128(u128 n) {
-    if (n < 2) return 0; if (n < 4) return 1; if (n % 2 == 0) return 0;
-    u128 d = n-1; int r = 0; while (d%2==0) { d/=2; r++; }
-    u64 w[] = {2,3,5,7,11,13,17,19,23,29,31,37};
-    for (int i = 0; i < 12; i++) {
-        u128 a = w[i]; if (a >= n) continue;
-        u128 x = 1, b = a;
-        for (u128 e = d; e; e >>= 1) {
-            if (e & 1) x = mulmod_slow(x,b,n);
-            b = mulmod_slow(b,b,n);
-        }
-        if (x == 1 || x == n-1) continue;
-        int ok = 0;
-        for (int j = 0; j < r-1; j++) { x = mulmod_slow(x,x,n); if (x==n-1){ok=1;break;} }
-        if (!ok) return 0;
-    }
-    return 1;
-}
-
 /* ================================================================
- * Dispatch: search64 / search128
+ * Dispatch: search64 / search128 (INCREMENTAL UPDATED)
  * ================================================================ */
 
-static int search64(u64 p, int target_count, u64 *out_A, u64 *out_x0, u64 *out_trials) {
-    volatile int found_count = 0;
+static int search64(u64 p, int target_total, int start_count, u64 *out_A, u64 *out_x0, u64 *out_trials) {
+    volatile int found_count = start_count;
 
     int k = compute_k(p);
     u64 sqrtp = (u64)sqrtl((long double)p);
@@ -386,7 +347,7 @@ static int search64(u64 p, int target_count, u64 *out_A, u64 *out_x0, u64 *out_t
         u64 budget = max_trials / nthr + 1;
         u64 A_trials = 0;
 
-        while (found_count < target_count && A_trials < budget) {
+        while (found_count < target_total && A_trials < budget) {
             u64 A = rng64(&rng) % p;
             if (A==2||A==p-2) { continue; }
 
@@ -398,12 +359,12 @@ static int search64(u64 p, int target_count, u64 *out_A, u64 *out_x0, u64 *out_t
 
             int a_success = 0;
 
-            for (int x_tries = 0; x_tries < 50 && !a_success && found_count < target_count; x_tries++) {
+            for (int x_tries = 0; x_tries < 50 && !a_success && found_count < target_total; x_tries++) {
                 u64 x0r = rng64(&rng) % p;
                 if (x0r < 2) continue;
                 u64 x0m = toM64(x0r, &mt);
 
-                for (int mi=0; mi<nms && !a_success && found_count < target_count; mi++) {
+                for (int mi=0; mi<nms && !a_success && found_count < target_total; mi++) {
                     u64 QX, QZ;
                     xMUL64(&QX, &QZ, x0m, ms[mi], a24m, &mt);
                     if (QZ == 0) continue;
@@ -432,7 +393,7 @@ static int search64(u64 p, int target_count, u64 *out_A, u64 *out_x0, u64 *out_t
                                     is_dup = 1; break;
                                 }
                             }
-                            if (!is_dup && found_count < target_count) {
+                            if (!is_dup && found_count < target_total) {
                                 out_A[found_count] = A;
                                 out_x0[found_count] = xR;
 
@@ -456,8 +417,8 @@ static int search64(u64 p, int target_count, u64 *out_A, u64 *out_x0, u64 *out_t
     return found_count;
 }
 
-static int search128(u128 p, int target_count, u128 *out_A, u128 *out_x0, u64 *out_trials) {
-    volatile int found_count = 0;
+static int search128(u128 p, int target_total, int start_count, u128 *out_A, u128 *out_x0, u64 *out_trials) {
+    volatile int found_count = start_count;
 
     int k = compute_k(p);
     u64 sqrtp = (u64)sqrtl((long double)p);
@@ -468,7 +429,6 @@ static int search128(u128 p, int target_count, u128 *out_A, u128 *out_x0, u64 *o
     if (nms == 0) { printf("No valid odd parts.\n"); return found_count; }
 
     Mont128 mt; m128_init(&mt, p);
-    /* inv4 in Montgomery form */
     u128 inv4_m;
     { u128 four_m=toM128(4,&mt), r=mt.one, b=four_m; u128 e=p-2;
       while(e>0){if(e&1)r=mm128(r,b,&mt);b=mm128(b,b,&mt);e>>=1;} inv4_m=r; }
@@ -494,7 +454,7 @@ static int search128(u128 p, int target_count, u128 *out_A, u128 *out_x0, u64 *o
         u64 budget = max_trials / nthr + 1;
         u64 A_trials = 0;
 
-        while (found_count < target_count && A_trials < budget) {
+        while (found_count < target_total && A_trials < budget) {
             u128 A = (u128)rng64(&rng) | ((u128)rng64(&rng) << 64); A %= p;
             if (A==2 || A==p-2) continue;
 
@@ -506,13 +466,13 @@ static int search128(u128 p, int target_count, u128 *out_A, u128 *out_x0, u64 *o
 
             int a_success = 0;
 
-            for (int x_tries = 0; x_tries < 50 && !a_success && found_count < target_count; x_tries++) {
+            for (int x_tries = 0; x_tries < 50 && !a_success && found_count < target_total; x_tries++) {
                 u128 x0r = (u128)rng64(&rng) | ((u128)rng64(&rng) << 64); x0r %= p;
                 if (x0r < 2) continue;
 
                 u128 x0m = toM128(x0r, &mt);
 
-                for (int mi=0; mi<nms && !a_success && found_count < target_count; mi++) {
+                for (int mi=0; mi<nms && !a_success && found_count < target_total; mi++) {
                     u128 QX, QZ;
                     xMUL128(&QX, &QZ, x0m, ms[mi], a24m, &mt);
                     if (QZ == 0) continue;
@@ -543,7 +503,7 @@ static int search128(u128 p, int target_count, u128 *out_A, u128 *out_x0, u64 *o
                                     is_dup = 1; break;
                                 }
                             }
-                            if (!is_dup && found_count < target_count) {
+                            if (!is_dup && found_count < target_total) {
                                 out_A[found_count] = A;
                                 out_x0[found_count] = xR;
 
@@ -568,18 +528,18 @@ static int search128(u128 p, int target_count, u128 *out_A, u128 *out_x0, u64 *o
 }
 
 /* ================================================================
- * Batch-processing main
+ * Batch-processing main (INCREMENTAL LOGIC)
  * ================================================================ */
 
 int main(int argc, char *argv[]) {
     if (argc < 5) {
-        printf("Usage: ./pomerance <input_primes.txt> <output_pure.csv> <output_metrics.csv> <num_triples>\n");
+        printf("Usage: ./pomerance <stateful_input.txt> <output_pure.csv> <output_metrics.csv> <target_total>\n");
         return 1;
     }
 
-    int target = atoi(argv[4]);
-    if (target <= 0) {
-        printf("Error: <num_triples> must be greater than 0.\n");
+    int target_total = atoi(argv[4]);
+    if (target_total <= 0) {
+        printf("Error: <target_total> must be greater than 0.\n");
         return 1;
     }
 
@@ -592,59 +552,71 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // Dynamically allocate arrays based on target size
-    u64 *out_A_arr = (u64 *)malloc(target * sizeof(u64));
-    u64 *out_x0_arr = (u64 *)malloc(target * sizeof(u64));
-    u64 *out_trials_arr = (u64 *)malloc(target * sizeof(u64));
-    u128 *out_A128 = (u128 *)malloc(target * sizeof(u128));
-    u128 *out_x0128 = (u128 *)malloc(target * sizeof(u128));
+    u64 *out_A_arr = (u64 *)malloc(target_total * sizeof(u64));
+    u64 *out_x0_arr = (u64 *)malloc(target_total * sizeof(u64));
+    u64 *out_trials_arr = (u64 *)malloc(target_total * sizeof(u64));
+    u128 *out_A128 = (u128 *)malloc(target_total * sizeof(u128));
+    u128 *out_x0128 = (u128 *)malloc(target_total * sizeof(u128));
 
     if (!out_A_arr || !out_x0_arr || !out_trials_arr || !out_A128 || !out_x0128) {
         printf("Memory allocation failed.\n");
         return 1;
     }
 
+    // Do NOT print headers if you plan to append this directly to old files,
+    // or print headers here and let Python skip them later.
+    // I'm keeping your original header logic for the metrics file.
     fprintf(out_metrics, "prime,A,x0,trials\n");
 
-    unsigned long long p_low;
+    char line[65536];
     unsigned long long current_index = 0;
 
-    // Notice we now only expect one parameter per line
-    while (fscanf(input, "%llu", &p_low) == 1) {
+    while (fgets(line, sizeof(line), input)) {
+        char *ptr = line;
+        u128 p = parse128_adv(&ptr);
+        if (p == 0) continue;
+
         current_index++;
+        int num_existing = (int)parse128_adv(&ptr);
 
-        u128 p = (u128)p_low;
+        // Preload existing pairs
+        for(int i = 0; i < num_existing; i++) {
+            if (p < ((u128)1 << 63)) {
+                out_A_arr[i] = (u64)parse128_adv(&ptr);
+                out_x0_arr[i] = (u64)parse128_adv(&ptr);
+                out_trials_arr[i] = 0;
+            } else {
+                out_A128[i] = parse128_adv(&ptr);
+                out_x0128[i] = parse128_adv(&ptr);
+                out_trials_arr[i] = 0;
+            }
+        }
 
-        printf("[%llu] Processing prime: %llu (Target: %d)...\n", current_index, p_low, target);
+        char p_display[50]; sprint128(p_display, p);
+        printf("[%llu] Prime: %s (Existing: %d, Target: %d)...\n", current_index, p_display, num_existing, target_total);
         fflush(stdout);
 
         int found_amount = 0;
-
         if (p < ((u128)1 << 63)) {
-            found_amount = search64((u64)p, target, out_A_arr, out_x0_arr, out_trials_arr);
+            found_amount = search64((u64)p, target_total, num_existing, out_A_arr, out_x0_arr, out_trials_arr);
         } else {
-            found_amount = search128(p, target, out_A128, out_x0128, out_trials_arr);
-            for(int i = 0; i < found_amount; i++) {
+            found_amount = search128(p, target_total, num_existing, out_A128, out_x0128, out_trials_arr);
+            for(int i = num_existing; i < found_amount; i++) {
                 out_A_arr[i] = (u64)out_A128[i];
                 out_x0_arr[i] = (u64)out_x0128[i];
             }
         }
 
-        if (found_amount > 0) {
+        int newly_found = found_amount - num_existing;
 
-            // Sort by timeline mapping (trials)
-            for (int i = 0; i < found_amount - 1; i++) {
-                for (int j = 0; j < found_amount - i - 1; j++) {
+        if (newly_found > 0) {
+            // Sort ONLY the newly found elements by trials
+            for (int i = num_existing; i < found_amount - 1; i++) {
+                for (int j = num_existing; j < found_amount - 1 - (i - num_existing); j++) {
                     if (out_trials_arr[j] > out_trials_arr[j+1]) {
-                        u64 temp_t = out_trials_arr[j];
-                        out_trials_arr[j] = out_trials_arr[j+1];
-                        out_trials_arr[j+1] = temp_t;
-                        u64 temp_A = out_A_arr[j];
-                        out_A_arr[j] = out_A_arr[j+1];
-                        out_A_arr[j+1] = temp_A;
-                        u64 temp_x0 = out_x0_arr[j];
-                        out_x0_arr[j] = out_x0_arr[j+1];
-                        out_x0_arr[j+1] = temp_x0;
+                        u64 temp_t = out_trials_arr[j]; out_trials_arr[j] = out_trials_arr[j+1]; out_trials_arr[j+1] = temp_t;
+                        u64 temp_A = out_A_arr[j]; out_A_arr[j] = out_A_arr[j+1]; out_A_arr[j+1] = temp_A;
+                        u64 temp_x0 = out_x0_arr[j]; out_x0_arr[j] = out_x0_arr[j+1]; out_x0_arr[j+1] = temp_x0;
                     }
                 }
             }
@@ -652,29 +624,30 @@ int main(int argc, char *argv[]) {
             u64 total_new_trials = 0;
             u64 last_cumulative = 0;
 
-            for (int i = 0; i < found_amount; i++) {
+            // Output ONLY the new triples
+            for (int i = num_existing; i < found_amount; i++) {
                 u64 marginal_trials = out_trials_arr[i] - last_cumulative;
                 if (marginal_trials == 0) marginal_trials = 1;
-
                 last_cumulative = out_trials_arr[i];
                 total_new_trials += marginal_trials;
 
-                fprintf(out_pure, "%llu,%llu,%llu\n", (unsigned long long)p_low, (unsigned long long)out_A_arr[i], (unsigned long long)out_x0_arr[i]);
-                fprintf(out_metrics, "%llu,%llu,%llu,%llu\n", (unsigned long long)p_low, (unsigned long long)out_A_arr[i], (unsigned long long)out_x0_arr[i], marginal_trials);
+                char a_str[50], x_str[50];
+                sprint128(a_str, p < ((u128)1 << 63) ? out_A_arr[i] : out_A128[i]);
+                sprint128(x_str, p < ((u128)1 << 63) ? out_x0_arr[i] : out_x0128[i]);
+
+                fprintf(out_pure, "%s,%s,%s\n", p_display, a_str, x_str);
+                fprintf(out_metrics, "%s,%s,%s,%llu\n", p_display, a_str, x_str, marginal_trials);
             }
-
-            printf("[%llu] Success: found %d triples (Total new trials: %llu)\n\n", current_index, found_amount, total_new_trials);
+            printf("      Success: found %d new triples (Total new trials: %llu)\n", newly_found, total_new_trials);
             fflush(stdout);
-
         } else {
-            fprintf(out_pure, "%llu,FAILED,FAILED\n", (unsigned long long)p_low);
-            fprintf(out_metrics, "%llu,FAILED,FAILED,FAILED\n", (unsigned long long)p_low);
-            printf("Failed: %llu\n\n", (unsigned long long)p_low);
+            fprintf(out_pure, "%s,FAILED,FAILED\n", p_display);
+            fprintf(out_metrics, "%s,FAILED,FAILED,FAILED\n", p_display);
+            printf("      Failed to find new triples.\n");
             fflush(stdout);
         }
     }
 
-    // Clean up memory and handles
     free(out_A_arr);
     free(out_x0_arr);
     free(out_trials_arr);
