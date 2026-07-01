@@ -5,3 +5,4 @@ data/raw
 reports/intermediate_reports
 .DS_Store
 __pycache__/
+.env
