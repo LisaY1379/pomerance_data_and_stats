@@ -11,7 +11,6 @@ load_dotenv()
 
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
-
 def load_shuffled_csv_files(folder_path, file_configs):
     combined_lines = []
 
@@ -100,10 +99,8 @@ def load_history_context(ledger_path="../output/ledger.json"):
 
 # 1. System Prompt: Setting the expert persona and strict boundaries
 def get_system_prompt(next_id):
-    # 1. Dynamically load the memory constraint
     history_context = load_history_context()
 
-    # 2. Assemble the prompt
     return f"""You are an expert computational number theorist building an automated Pomerance search engine.
 
 [Data Context]
@@ -113,32 +110,30 @@ Here is a sample dataset of primes and their valid Pomerance parameters (p, A, x
 {history_context}
 
 [Task]
-Autonomously discover a NOVEL statistical or algebraic constraint to prune the search space for 'A' or 'x0'. 
+Autonomously discover a statistical or algebraic constraint to prune the search space for 'A'. 
 Your output must be a single Python function `apply_filter(A, x0, p)` that returns True (keep) or False (discard).
 
 [Strict Engineering Constraints]
-1. NAMING: The function MUST be named `filter_{next_id:02d}_[your_descriptive_name]` (e.g., `filter_{next_id:02d}_legendre_bias`).
-2. MODULARITY: Do NOT include elliptic curve doubling loops or GCD verification. Assume all heavy math primitives are executed elsewhere. Output pure filtering logic only.
-3. MATHEMATICAL RIGOR: 
-   - Deterministic filters: Must guarantee a 0% False Negative rate.
-   - Probabilistic/Heuristic filters: Must explicitly state the expected pruning rate and any collision risks in the docstring.
+1. NAMING: The function MUST be named `filter_{next_id:02d}_[your_descriptive_name]`.
+2. MODULARITY: Output pure filtering logic only. NO unbounded loops (to prevent infinite hanging).
+3. HEURISTICS ALLOWED (NEW RULE): 
+   - We now allow Heuristic filters! It is ACCEPTABLE to falsely discard some valid 'A' values (False Negatives), as long as you drastically reduce the search space.
+   - However, you MUST NOT discard 100% of the valid answers. If your filter rejects everything, it will cause an infinite loop in our C-engine and be rejected.
 4. DOCUMENTATION: Your function must begin with a docstring formatted exactly like this:
    \"\"\"
    # Name: [Descriptive Name]
-   # Description: [Mathematical justification of why this filter works]
+   # Description: [Mathematical justification]
    \"\"\"
 
 [Output Requirement]
-Output ONLY the Python code block containing the single requested function. Do not output test code or the main search algorithm.
+Output ONLY the Python code block containing the single requested function.
 """
 
 def evaluate_filter_logic(code_string, ground_truth_data):
     """
-    Evaluates the performance of an AI-generated filter (pruning heuristic).
-    ground_truth_data format: { p: {'A': valid_A, 'x0': valid_x0} }
+    Evaluates the funnel performance, calculating the False Negative Rate and Pruning Rate.
     """
     try:
-        # 1. Dynamically load the AI-generated filter into a safe namespace
         namespace = {}
         exec(code_string, namespace)
 
@@ -149,77 +144,75 @@ def evaluate_filter_logic(code_string, ground_truth_data):
                 break
 
         if not ai_filter_func:
-            return False, "❌ Missing Function: Could not find a valid function definition starting with `filter_`."
+            return False, "❌ Missing Function: Could not find a valid function definition."
 
-        # 2. Core evaluation loop
+        total_truths = len(ground_truth_data)
+        missed_truths = 0
         total_pruning_rate = 0
 
+        # Core evaluation loop
         for p, truth in ground_truth_data.items():
             true_A = truth['A']
             true_x0 = truth['x0']
 
-            # --- Metric A: Absolute Safety Check (0% False Negative) ---
-            # If the filter discards the known valid answer, the strategy is immediately rejected.
+            # Count False Negatives (Missed Truths)
             if not ai_filter_func(true_A, true_x0, p):
-                return False, f"❌ FATAL ERROR (False Negative): For p={p}, the known valid A={true_A} was incorrectly discarded by the filter."
+                missed_truths += 1
 
-            # --- Metric B: Pruning Efficiency Test (Pruning Rate) ---
-            # Count how many guaranteed failures (invalid A values) the filter successfully removes.
+            # Calculate Pruning Efficiency
             discarded_count = 0
             total_tested = p - 1
-
             for test_A in range(1, p):
                 if test_A == true_A:
-                    continue  # Skip the ground truth value
-
-                # If the filter returns False, it successfully pruned an invalid candidate.
+                    continue
                 if not ai_filter_func(test_A, None, p):
                     discarded_count += 1
 
-            pruning_rate = discarded_count / total_tested
-            total_pruning_rate += pruning_rate
+            total_pruning_rate += (discarded_count / total_tested)
 
-        # 3. Comprehensive Scoring
-        avg_pruning = (total_pruning_rate / len(ground_truth_data)) * 100
+        # Calculate final percentages
+        false_negative_rate = (missed_truths / total_truths) * 100
+        avg_pruning = (total_pruning_rate / total_truths) * 100
 
+        # Infinite Loop Prevention: If the false negative rate is 100% (all truths killed), reject!
+        if false_negative_rate == 100.0:
+            return False, f"❌ FATAL (Infinite Loop Risk): 100% False Negative Rate! You discarded ALL valid answers. This will cause the C-engine to hang infinitely."
+
+        # Reject ineffective filters
         if avg_pruning == 0:
-            return False, "⚠️ Ineffective Strategy: The filter is safe but did not prune any candidates (0.00% reduction rate)."
+            return False, "⚠️ Ineffective Strategy: 0.00% pruning rate. The filter provides no optimization."
 
-        return True, f"✅ SUCCESS: 0% False Negatives. Average search space pruned: {avg_pruning:.2f}%."
+        # Reject if the false negative rate is too high (e.g., > 60%) and prompt for optimization
+        if false_negative_rate > 60.0:
+            return False, f"⚠️ High False Negative: Pruned {avg_pruning:.2f}%, but the False Negative Rate is {false_negative_rate:.2f}%. This is too aggressive. Please relax your mathematical bounds to lower the error rate!"
+
+        # Accept as Heuristic if the false negative rate is within engineering tolerance
+        if false_negative_rate > 0:
+            return True, f"✅ HEURISTIC ACCEPTED: Pruned {avg_pruning:.2f}% of the search space. Current False Negative Rate is {false_negative_rate:.2f}% (acceptable engineering trade-off)."
+
+        # Perfect pass (Deterministic)
+        return True, f"✅ DETERMINISTIC SUCCESS: Perfect 0.00% False Negative Rate! Average search space pruned: {avg_pruning:.2f}%."
 
     except Exception as e:
         return False, f"❌ Execution Crash: {str(e)}"
-
 
 def run_optimization_loop(iterations=3):
     TEST_GROUND_TRUTH = {
         101: {'A': 4, 'x0': 53},
         103: {'A': 1, 'x0': 62},
-
         10007: {'A': 2, 'x0': 123},
         10009: {'A': 5, 'x0': 456},
-
         100003: {'A': 10, 'x0': 789},
         100019: {'A': 7, 'x0': 321}
     }
 
-    # 1. Initial User Prompt
-    current_prompt = """Our current approach relies on randomly guessing `A` and `x0` and running the full `pp_verify` loop, which is computationally expensive. 
-
-To help you find structural patterns, here are the valid Pomerance triples for the first few primes over 100:
-p=101 -> (101, 4, 53)
-p=103 -> (103, 1, 62)
-p=107 -> (107, 1, 35)
-p=109 -> (109, 3, 51)
-p=113 -> (113, 2, 85)
-
-Please analyze this and write an optimized filtering strategy."""
+    current_prompt = """Our current approach relies on randomly guessing `A` and running the verification loop. 
+    Please analyze the data and write an optimized filtering strategy. 
+    Remember, heuristic algorithms are allowed, but try to keep the False Negative rate low."""
 
     for i in range(iterations):
         print(f"\n--- 🚀 Agent Iteration Round {i + 1} ---")
-
         current_next_id = get_next_filter_id(STRATEGY_FILE)
-
         dynamic_system_prompt = get_system_prompt(current_next_id)
 
         messages = [
@@ -234,30 +227,35 @@ Please analyze this and write an optimized filtering strategy."""
         )
 
         ai_response = response.choices[0].message.content
-
         code_match = re.search(r"```python(.*?)```", ai_response, re.DOTALL)
         if not code_match:
-            print("⚠️ AI did not output a standard code block. Trying next round.")
+            print("⚠️ AI did not output a standard code block.")
             current_prompt = "You did not provide the code enclosed in ```python ... ``` blocks. Please output the code properly."
             continue
 
         generated_code = code_match.group(1).strip()
         print("💡 AI generated a new algorithm. Running local tests...")
 
+        print("\n--- 📦 AI Generated Code ---")
+        print(generated_code)
+        print("----------------------------\n")
+
         success, result = evaluate_filter_logic(generated_code, TEST_GROUND_TRUTH)
 
         if success:
             print(result)
 
+            annotated_code = f"# Eval Result: {result}\n{generated_code}"
+
             with open(STRATEGY_FILE, "a", encoding="utf-8") as f:
                 f.write(f"\n\n# ==========================================\n")
                 f.write(f"# Generated at Iteration: {i + 1} | Filter ID: {current_next_id:02d}\n")
                 f.write(f"# ==========================================\n")
-                f.write(generated_code + "\n")
+                f.write(annotated_code + "\n")
             print(f"💾 Appended Filter {current_next_id:02d} to {STRATEGY_FILE}")
 
             desc_match = re.search(r"# Description:\s*(.*)", generated_code)
-            strategy_desc = desc_match.group(1).strip() if desc_match else "Discovered by AI in runtime optimization."
+            strategy_desc = desc_match.group(1).strip() if desc_match else "Heuristic strategy."
 
             ledger_path = "../output/ledger.json"
             ledger_data = []
@@ -268,19 +266,20 @@ Please analyze this and write an optimized filtering strategy."""
                     except:
                         pass
 
-            new_record = {
+            ledger_data.append({
                 "id": f"{current_next_id:02d}",
                 "name": f"filter_{current_next_id:02d}_algorithm",
-                "description": strategy_desc
-            }
-            ledger_data.append(new_record)
+                "description": f"{strategy_desc} [{result.split(':')[0]}]"
+            })
 
             with open(ledger_path, "w", encoding="utf-8") as lf:
                 json.dump(ledger_data, lf, indent=2, ensure_ascii=False)
-            print(f"🧠 Updated long-term memory ledger: {ledger_path}")
+
+            current_prompt = f"Excellent! Your previous code was accepted with the following performance: {result}\nFor the next iteration, can you create another orthogonal strategy, or optimize the logic to lower the false negative rate further?"
+
         else:
             print(f"⚠️ Test Failed! Reason:\n{result}")
-            current_prompt = f"The generated code failed with the following error during evaluation:\n{result}\nPlease fix this mathematical or logical bug and output the corrected complete code."
+            current_prompt = f"The generated code failed validation:\n{result}\nPlease mathematically relax your constraints to reduce the False Negative rate, ensuring you don't reject 100% of the valid answers."
 
 if __name__ == "__main__":
     run_optimization_loop(iterations=3)
