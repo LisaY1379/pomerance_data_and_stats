@@ -2,11 +2,11 @@ from math import gcd as my_gcd
 from math import isqrt as my_isqrt
 
 
-def filter_01_quadratic_residue_bias(A, x0, p):
+def filter_01_quadratic_residue_bias(p, A):
     """Checks if A is a quadratic residue modulo p."""
     return pow(A, (p - 1) // 2, p) == 1
 
-def filter_02_geometric_non_singular(A, x0, p):
+def filter_02_geometric_non_singular(p, A):
     """Ensures the elliptic curve y^2 = x^3 + Ax is non-singular."""
     return (4 * pow(A, 3, p) + 27) % p != 0
 
@@ -36,7 +36,7 @@ def filter_03_pseudorandom_search_order(p, max_n=1000):
 # ==========================================
 # Generated at Iteration: 2 | Filter ID: 04
 # ==========================================
-def filter_04_legendre_symbol_bias(A, x0, p):
+def filter_04_legendre_symbol_bias(p, A):
     """
     # Name: Legendre Symbol Bias
     # Description: This filter uses the Legendre symbol to check if A is a quadratic residue modulo p.
@@ -55,7 +55,7 @@ def filter_04_legendre_symbol_bias(A, x0, p):
 # Generated at Iteration: 1 | Filter ID: 05
 # ==========================================
 # Eval Result: ✅ HEURISTIC ACCEPTED: Pruned 46.78% of the search space. Current False Negative Rate is 33.33% (acceptable engineering trade-off).
-def filter_05_prime_modular_bias(A, x0, p):
+def filter_05_prime_modular_bias(p, A):
     """
     # Name: Prime Modular Bias
     # Description: This filter leverages the observation that certain values of A modulo small primes are less likely to be valid.
@@ -74,7 +74,7 @@ def filter_05_prime_modular_bias(A, x0, p):
 # Generated at Iteration: 2 | Filter ID: 06
 # ==========================================
 # Eval Result: ✅ HEURISTIC ACCEPTED: Pruned 28.45% of the search space. Current False Negative Rate is 33.33% (acceptable engineering trade-off).
-def filter_06_modular_bias(A, x0, p):
+def filter_06_modular_bias(p, A):
     """
     # Name: Modular Bias Filter
     # Description: This filter checks if A modulo a small prime (e.g., 7) falls into a specific set of residues

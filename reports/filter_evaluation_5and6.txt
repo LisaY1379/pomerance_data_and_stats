@@ -1,0 +1,15 @@
+-------------------------------------------------------
+📊 Filter Evaluation Report: filter_01_quadratic_residue_bias
+ - Theoretical Pruning Rate α : 50.0000%
+ - True Solution False Negative Rate β : 49.9792%
+ - Effective Density Gain Ratio γ : 1.00x
+-------------------------------------------------------
+📊 Filter Evaluation Report: filter_05_prime_modular_bias
+ - Theoretical Pruning Rate α : 46.6667%
+ - True Solution False Negative Rate β : 46.5508%
+ - Effective Density Gain Ratio γ : 1.00x
+-------------------------------------------------------
+📊 Filter Evaluation Report: filter_06_modular_bias
+ - Theoretical Pruning Rate α : 28.5714%
+ - True Solution False Negative Rate β : 28.5224%
+ - Effective Density Gain Ratio γ : 1.00x

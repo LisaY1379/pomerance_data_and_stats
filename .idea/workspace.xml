@@ -4,10 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e32caff9-6a59-49a4-be37-a0f16221f526" name="Changes" comment="15th Commit 06/21/2026:&#10;1. Refined isotonic LRT, changed into H0: global #trials increasing, all results show REJECT H0 with p-value ~0, which indicates instead of strict monotone increasing the difficulty has significant fluctuations.&#10;2. Refined regression, changed parameter a into categorical data and tested regression under different magnitude range (3-13, 10-13, 12-13) which shows a tendency of convergence to 1 of the coefficient of log(sqrt(p)), with coefficient of log(b) shows a tendency of convergence to 0 and a converging to 3&amp;4 as magnitude increases. One explanation is that log(sqrt(p)) and log(b) has dependent relations (with b having sqrt((p+1-m)^2-4*p) as average) and that the model has the tendency to keep only the parameter log(sqrt(p)) and absorb log(b) into it, since the impact of the absolute magnitude dominates the impact of b. One evidence to this explanation is that while the coefficient of p converging to 1 and the coefficient of b converging to 0, the difference of these two coefficients keeps close to 1. As the magnitude continues to increase it is hypothesized that the two parameters will converge into a single parameter log(sqrt(p)).">
-      <change afterPath="$PROJECT_DIR$/data/p_data/pp16A.txt" afterDir="false" />
+    <list default="true" id="e32caff9-6a59-49a4-be37-a0f16221f526" name="Changes" comment="17th Commit 06/30/2026:&#10;Initial trial for agent-assisted algorithm optimization. &#10;Methodology: Prompted AI to discover both deterministic and statistic patterns in the training data and encapsulate its hypothesized filter mechanism in a function, aiming to create a library of filter strategies (in filter_strategies.py). An effective progress is that the agent is currently able to discover heuristic &amp; statistical patterns in the data and shrink the searching space despite ignoring some potentially correct answers, but the negative impact will be minimal for large primes. The next steps: 1. Optimize training &amp; prompting strategy to encourage discovery of more advanced algebraic geometry patterns, 2. If needed, decrease false negative rate">
+      <change afterPath="$PROJECT_DIR$/01_src/evaluate_filter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/ECPP_Logic_AI.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ECPP_Logic_AI.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/01_src/lrt_pipeline.py" beforeDir="false" afterPath="$PROJECT_DIR$/01_src/lrt_pipeline.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/filter_strategies.py" beforeDir="false" afterPath="$PROJECT_DIR$/output/filter_strategies.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,58 +45,61 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python.analyze_pvalues.executor&quot;: &quot;Run&quot;,
-    &quot;Python.benchmark.executor&quot;: &quot;Run&quot;,
-    &quot;Python.clean.executor&quot;: &quot;Run&quot;,
-    &quot;Python.comparison_p.executor&quot;: &quot;Run&quot;,
-    &quot;Python.compute_p.executor&quot;: &quot;Run&quot;,
-    &quot;Python.concat.executor&quot;: &quot;Run&quot;,
-    &quot;Python.concatenate.executor&quot;: &quot;Run&quot;,
-    &quot;Python.copy_primes.executor&quot;: &quot;Run&quot;,
-    &quot;Python.csv_edit.executor&quot;: &quot;Run&quot;,
-    &quot;Python.csv_join.executor&quot;: &quot;Run&quot;,
-    &quot;Python.delete_b.executor&quot;: &quot;Run&quot;,
-    &quot;Python.delete_duplicate_primes.executor&quot;: &quot;Run&quot;,
-    &quot;Python.delete_duplicates.executor&quot;: &quot;Run&quot;,
-    &quot;Python.difficulty_parameters.executor&quot;: &quot;Run&quot;,
-    &quot;Python.duplicate_remove.executor&quot;: &quot;Run&quot;,
-    &quot;Python.fix_metadata.executor&quot;: &quot;Run&quot;,
-    &quot;Python.fix_metadata_triples.executor&quot;: &quot;Run&quot;,
-    &quot;Python.hypothesis_testing.executor&quot;: &quot;Run&quot;,
-    &quot;Python.lrt_pipeline.executor&quot;: &quot;Run&quot;,
-    &quot;Python.merge.executor&quot;: &quot;Run&quot;,
-    &quot;Python.merge_csv.executor&quot;: &quot;Run&quot;,
-    &quot;Python.onlyprime.executor&quot;: &quot;Run&quot;,
-    &quot;Python.pomerance_driver.executor&quot;: &quot;Run&quot;,
-    &quot;Python.prime_gen.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.prime_generator.executor&quot;: &quot;Run&quot;,
-    &quot;Python.regression_a_b.executor&quot;: &quot;Run&quot;,
-    &quot;Python.sort_data.executor&quot;: &quot;Run&quot;,
-    &quot;Python.sort_primes.executor&quot;: &quot;Run&quot;,
-    &quot;Python.split.executor&quot;: &quot;Run&quot;,
-    &quot;Python.vpp.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/catgpt/Documents/ECPP_Logic_AI/01_src&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.analyze_pvalues.executor": "Run",
+    "Python.benchmark.executor": "Run",
+    "Python.clean.executor": "Run",
+    "Python.comparison_p.executor": "Run",
+    "Python.compute_p.executor": "Run",
+    "Python.concat.executor": "Run",
+    "Python.concatenate.executor": "Run",
+    "Python.copy_primes.executor": "Run",
+    "Python.csv_edit.executor": "Run",
+    "Python.csv_join.executor": "Run",
+    "Python.delete_b.executor": "Run",
+    "Python.delete_duplicate_primes.executor": "Run",
+    "Python.delete_duplicates.executor": "Run",
+    "Python.difficulty_parameters.executor": "Run",
+    "Python.duplicate_remove.executor": "Run",
+    "Python.evaluate_filter.executor": "Run",
+    "Python.fix_metadata.executor": "Run",
+    "Python.fix_metadata_triples.executor": "Run",
+    "Python.hypothesis_testing.executor": "Run",
+    "Python.lrt_pipeline.executor": "Run",
+    "Python.merge.executor": "Run",
+    "Python.merge_csv.executor": "Run",
+    "Python.onlyprime.executor": "Run",
+    "Python.pomerance_driver.executor": "Run",
+    "Python.prime_gen.executor": "Debug",
+    "Python.prime_generator.executor": "Run",
+    "Python.regression_a_b.executor": "Run",
+    "Python.sort_data.executor": "Run",
+    "Python.sort_primes.executor": "Run",
+    "Python.split.executor": "Run",
+    "Python.testapi.executor": "Run",
+    "Python.vpp.executor": "Run",
+    "Python.workflow_controller.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/Users/catgpt/Documents/ECPP_Logic_AI/01_src"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/01_src" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/output" />
       <recent name="$PROJECT_DIR$/01_src" />
       <recent name="$PROJECT_DIR$/data/final_data" />
       <recent name="$PROJECT_DIR$/data/p_data" />
       <recent name="$PROJECT_DIR$/reports/regression" />
-      <recent name="$PROJECT_DIR$/reports" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.analyze_pvalues">
+  <component name="RunManager">
     <configuration name="analyze_pvalues" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="ECPP_Logic_AI" />
       <option name="ENV_FILES" value="" />
@@ -162,28 +166,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="lrt_pipeline" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="ECPP_Logic_AI" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/01_src" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/01_src/lrt_pipeline.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="regression_a_b" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="ECPP_Logic_AI" />
       <option name="ENV_FILES" value="" />
@@ -206,13 +188,35 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="workflow_controller" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="ECPP_Logic_AI" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/01_src" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/01_src/workflow_controller.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.workflow_controller" />
+        <item itemvalue="Python.analyze_pvalues" />
         <item itemvalue="Python.comparison_p" />
         <item itemvalue="Python.compute_p" />
         <item itemvalue="Python.regression_a_b" />
-        <item itemvalue="Python.analyze_pvalues" />
-        <item itemvalue="Python.lrt_pipeline" />
       </list>
     </recent_temporary>
   </component>
@@ -383,7 +387,39 @@
       <option name="project" value="LOCAL" />
       <updated>1782066074372</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="16th Commit 06/30/2026:&#10;Initial trial for agent-assisted algorithm optimization. &#10;Methodology: Prompted AI to discover both deterministic and statistic patterns in the training data and encapsulate its hypothesized filter mechanism in a function, aiming to create a library of filter strategies (in filter_strategies.py). The Current difficulty is that the agent tends to fail creating an effective strategy besides guessing random patterns that are ineffective for optimization.">
+      <option name="closed" value="true" />
+      <created>1782865901040</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1782865901040</updated>
+    </task>
+    <task id="LOCAL-00021" summary="16th Commit 06/30/2026:&#10;Initial trial for agent-assisted algorithm optimization. &#10;Methodology: Prompted AI to discover both deterministic and statistic patterns in the training data and encapsulate its hypothesized filter mechanism in a function, aiming to create a library of filter strategies (in filter_strategies.py). The Current difficulty is that the agent tends to fail creating an effective strategy besides guessing random patterns that are ineffective for optimization.">
+      <option name="closed" value="true" />
+      <created>1782866116260</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1782866116260</updated>
+    </task>
+    <task id="LOCAL-00022" summary="16th Commit 06/30/2026:&#10;Initial trial for agent-assisted algorithm optimization. &#10;Methodology: Prompted AI to discover both deterministic and statistic patterns in the training data and encapsulate its hypothesized filter mechanism in a function, aiming to create a library of filter strategies (in filter_strategies.py). The Current difficulty is that the agent tends to fail creating an effective strategy besides guessing random patterns that are ineffective for optimization.">
+      <option name="closed" value="true" />
+      <created>1782866120139</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1782866120139</updated>
+    </task>
+    <task id="LOCAL-00023" summary="17th Commit 06/30/2026:&#10;Initial trial for agent-assisted algorithm optimization. &#10;Methodology: Prompted AI to discover both deterministic and statistic patterns in the training data and encapsulate its hypothesized filter mechanism in a function, aiming to create a library of filter strategies (in filter_strategies.py). An effective progress is that the agent is currently able to discover heuristic &amp; statistical patterns in the data and shrink the searching space despite ignoring some potentially correct answers, but the negative impact will be minimal for large primes. The next steps: 1. Optimize training &amp; prompting strategy to encourage discovery of more advanced algebraic geometry patterns, 2. If needed, decrease false negative rate">
+      <option name="closed" value="true" />
+      <created>1782867724446</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1782867724446</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -403,6 +439,19 @@
     <MESSAGE value="14th Commit 06/14/2026:&#10;1. Compared theoretical success probability with experimental probability estimated by trials (in reports/p_stats/convergence_report, with sample size n=100 gives a 9.58% error)&#10;2. Updated isotonic test, results rejection rate ranges ~10%-24% (data in data/lrt_data, reports in reports/lrt_reports and p-value analysis in txt file &quot;PValue_Global_Analysis_*digits&quot; in each digit folder)&#10;3. Performed linear/log-linear regression on trials and sqrt(p), difficulty parameter a and b, results show that correlation is significant." />
     <MESSAGE value="14th Commit 06/14/2026:&#10;1. Compared theoretical success probability with experimental probability estimated by trials (in reports/p_stats/convergence_report, with sample size n=100 gives a 9.58% error)&#10;2. Updated isotonic test, results rejection rate ranges ~10%-24% (data in data/lrt_data, reports in reports/lrt_reports and p-value analysis in txt file &quot;PValue_Global_Analysis_*digits&quot; in each digit folder)&#10;3. Performed linear/log-linear regression on trials and sqrt(p), difficulty parameter a and b, results show that correlation is significant (in reports/regression)" />
     <MESSAGE value="15th Commit 06/21/2026:&#10;1. Refined isotonic LRT, changed into H0: global #trials increasing, all results show REJECT H0 with p-value ~0, which indicates instead of strict monotone increasing the difficulty has significant fluctuations.&#10;2. Refined regression, changed parameter a into categorical data and tested regression under different magnitude range (3-13, 10-13, 12-13) which shows a tendency of convergence to 1 of the coefficient of log(sqrt(p)), with coefficient of log(b) shows a tendency of convergence to 0 and a converging to 3&amp;4 as magnitude increases. One explanation is that log(sqrt(p)) and log(b) has dependent relations (with b having sqrt((p+1-m)^2-4*p) as average) and that the model has the tendency to keep only the parameter log(sqrt(p)) and absorb log(b) into it, since the impact of the absolute magnitude dominates the impact of b. One evidence to this explanation is that while the coefficient of p converging to 1 and the coefficient of b converging to 0, the difference of these two coefficients keeps close to 1. As the magnitude continues to increase it is hypothesized that the two parameters will converge into a single parameter log(sqrt(p))." />
-    <option name="LAST_COMMIT_MESSAGE" value="15th Commit 06/21/2026:&#10;1. Refined isotonic LRT, changed into H0: global #trials increasing, all results show REJECT H0 with p-value ~0, which indicates instead of strict monotone increasing the difficulty has significant fluctuations.&#10;2. Refined regression, changed parameter a into categorical data and tested regression under different magnitude range (3-13, 10-13, 12-13) which shows a tendency of convergence to 1 of the coefficient of log(sqrt(p)), with coefficient of log(b) shows a tendency of convergence to 0 and a converging to 3&amp;4 as magnitude increases. One explanation is that log(sqrt(p)) and log(b) has dependent relations (with b having sqrt((p+1-m)^2-4*p) as average) and that the model has the tendency to keep only the parameter log(sqrt(p)) and absorb log(b) into it, since the impact of the absolute magnitude dominates the impact of b. One evidence to this explanation is that while the coefficient of p converging to 1 and the coefficient of b converging to 0, the difference of these two coefficients keeps close to 1. As the magnitude continues to increase it is hypothesized that the two parameters will converge into a single parameter log(sqrt(p))." />
+    <MESSAGE value="16th Commit 06/30/2026:&#10;Initial trial for agent-assisted algorithm optimization. &#10;Methodology: Prompted AI to discover both deterministic and statistic patterns in the training data and encapsulate its hypothesized filter mechanism in a function, aiming to create a library of filter strategies (in filter_strategies.py). The Current difficulty is that the agent tends to fail creating an effective strategy besides guessing random patterns that are ineffective for optimization." />
+    <MESSAGE value="17th Commit 06/30/2026:&#10;Initial trial for agent-assisted algorithm optimization. &#10;Methodology: Prompted AI to discover both deterministic and statistic patterns in the training data and encapsulate its hypothesized filter mechanism in a function, aiming to create a library of filter strategies (in filter_strategies.py). An effective progress is that the agent is currently able to discover heuristic &amp; statistical patterns in the data and shrink the searching space despite ignoring some potentially correct answers, but the negative impact will be minimal for large primes. The next steps: 1. Optimize training &amp; prompting strategy to encourage discovery of more advanced algebraic geometry patterns, 2. If needed, decrease false negative rate" />
+    <option name="LAST_COMMIT_MESSAGE" value="17th Commit 06/30/2026:&#10;Initial trial for agent-assisted algorithm optimization. &#10;Methodology: Prompted AI to discover both deterministic and statistic patterns in the training data and encapsulate its hypothesized filter mechanism in a function, aiming to create a library of filter strategies (in filter_strategies.py). An effective progress is that the agent is currently able to discover heuristic &amp; statistical patterns in the data and shrink the searching space despite ignoring some potentially correct answers, but the negative impact will be minimal for large primes. The next steps: 1. Optimize training &amp; prompting strategy to encourage discovery of more advanced algebraic geometry patterns, 2. If needed, decrease false negative rate" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/01_src/lrt_pipeline.py</url>
+          <line>174</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
