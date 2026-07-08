@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/ECPP_Logic_AI.iml" filepath="$PROJECT_DIR$/.idea/ECPP_Logic_AI.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/pomerance_data_and_stats.iml" filepath="$PROJECT_DIR$/.idea/pomerance_data_and_stats.iml" />
     </modules>
   </component>
 </project>

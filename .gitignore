@@ -1,8 +1,1 @@
-resources/
-01_src/pomerance
-data/intermediate
-data/raw
-reports/intermediate_reports
-.DS_Store
-__pycache__/
-.env
+src/pomerance

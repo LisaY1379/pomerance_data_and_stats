@@ -4,11 +4,77 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e32caff9-6a59-49a4-be37-a0f16221f526" name="Changes" comment="17th Commit 06/30/2026:&#10;Initial trial for agent-assisted algorithm optimization. &#10;Methodology: Prompted AI to discover both deterministic and statistic patterns in the training data and encapsulate its hypothesized filter mechanism in a function, aiming to create a library of filter strategies (in filter_strategies.py). An effective progress is that the agent is currently able to discover heuristic &amp; statistical patterns in the data and shrink the searching space despite ignoring some potentially correct answers, but the negative impact will be minimal for large primes. The next steps: 1. Optimize training &amp; prompting strategy to encourage discovery of more advanced algebraic geometry patterns, 2. If needed, decrease false negative rate">
-      <change afterPath="$PROJECT_DIR$/01_src/evaluate_filter.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/ECPP_Logic_AI.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ECPP_Logic_AI.iml" afterDir="false" />
+    <list default="true" id="e32caff9-6a59-49a4-be37-a0f16221f526" name="Changes" comment="18th Commit 07/05/2026:&#10;Updated evaluation of filters, concluded that more complex algebraic structures needed to be prompted to be discovered or an active search for theories on Pomerance Proof is needed">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/ECPP_Logic_AI.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/pomerance_data_and_stats.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/output/filter_strategies.py" beforeDir="false" afterPath="$PROJECT_DIR$/output/filter_strategies.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/c_cpp_properties.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/analyze_pvalues.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/comparison_p.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/compute_p.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/difficulty_parameter_a.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/difficulty_parameter_b.sage" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/difficulty_parameter_b.sage.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/evaluate_filter.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/intermediate/hypothesis_testing.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/intermediate/used_primes_history copy 2.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/intermediate/used_primes_history copy.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/intermediate/used_primes_history.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/intermediate/used_primes_history2.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/lrt_pipeline.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/pomerance.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/pomerance_driver.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/prime_gen.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/regression_a_b.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/vpp.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_src/workflow_controller.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/10_digits.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/10_to_13.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/11_digits.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/12_digits.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/12_to_13.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/13_digits.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/3_digits.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/4_digits.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/5_digits.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/6_digits.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/7_digits.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/8_digits.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/9_digits.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/all_triples_combined.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/sort_by_magnitute/triples_metrics_12to15digits_seed1778731660.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/sort_by_magnitute/triples_metrics_3to6digits_seed1778732485.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/sort_by_magnitute/triples_metrics_7to11digits_seed1778732562.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/sort_by_magnitute/triples_pure_12to15digits_seed1778731660.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/sort_by_magnitute/triples_pure_3to6digits_seed1778732485.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_data/sort_by_magnitute/triples_pure_7to11digits_seed1778732562.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/p_data/pp16A.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/raw/primes_12to15digits_seed1778731660.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/raw/primes_3to6digits_seed1778732485.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/raw/primes_7to11digits_seed1778732562.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/filter_strategies.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/ledger.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/filter_evaluation_5and6.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/p_stats/convergence_summary_report.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/p_stats/experiment_results/detailed_stats_n_100.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/p_stats/experiment_results/detailed_stats_n_20.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/p_stats/experiment_results/detailed_stats_n_200.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/p_stats/experiment_results/detailed_stats_n_5.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/p_stats/experiment_results/detailed_stats_n_50.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/p_stats/experiment_results/triples_metrics_n_100.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/p_stats/experiment_results/triples_metrics_n_20.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/p_stats/experiment_results/triples_metrics_n_200.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/p_stats/experiment_results/triples_metrics_n_5.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/p_stats/experiment_results/triples_metrics_n_50.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/p_stats/experiment_results/triples_pure_n_100.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/p_stats/experiment_results/triples_pure_n_20.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/p_stats/experiment_results/triples_pure_n_200.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/p_stats/experiment_results/triples_pure_n_5.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/p_stats/experiment_results/triples_pure_n_50.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/p_stats/sampled_primes_ground_truth.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/p_stats/sampled_primes_input.txt" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -84,7 +150,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "/Users/catgpt/Documents/ECPP_Logic_AI/01_src"
+    "last_opened_file_path": "/Users/catgpt/Documents/pomerance_data_and_stats"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -92,16 +158,16 @@
       <recent name="$PROJECT_DIR$/01_src" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/../agentic_workflow" />
       <recent name="$PROJECT_DIR$/output" />
       <recent name="$PROJECT_DIR$/01_src" />
       <recent name="$PROJECT_DIR$/data/final_data" />
       <recent name="$PROJECT_DIR$/data/p_data" />
-      <recent name="$PROJECT_DIR$/reports/regression" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.analyze_pvalues">
     <configuration name="analyze_pvalues" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="ECPP_Logic_AI" />
+      <module name="pomerance_data_and_stats" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -123,7 +189,7 @@
       <method v="2" />
     </configuration>
     <configuration name="comparison_p" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="ECPP_Logic_AI" />
+      <module name="pomerance_data_and_stats" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -145,7 +211,7 @@
       <method v="2" />
     </configuration>
     <configuration name="compute_p" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="ECPP_Logic_AI" />
+      <module name="pomerance_data_and_stats" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -167,7 +233,7 @@
       <method v="2" />
     </configuration>
     <configuration name="regression_a_b" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="ECPP_Logic_AI" />
+      <module name="pomerance_data_and_stats" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -189,7 +255,7 @@
       <method v="2" />
     </configuration>
     <configuration name="workflow_controller" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="ECPP_Logic_AI" />
+      <module name="pomerance_data_and_stats" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -212,8 +278,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.workflow_controller" />
         <item itemvalue="Python.analyze_pvalues" />
+        <item itemvalue="Python.workflow_controller" />
         <item itemvalue="Python.comparison_p" />
         <item itemvalue="Python.compute_p" />
         <item itemvalue="Python.regression_a_b" />
@@ -419,7 +485,15 @@
       <option name="project" value="LOCAL" />
       <updated>1782867724446</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="18th Commit 07/05/2026:&#10;Updated evaluation of filters, concluded that more complex algebraic structures needed to be prompted to be discovered or an active search for theories on Pomerance Proof is needed">
+      <option name="closed" value="true" />
+      <created>1783286901710</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1783286901710</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -441,17 +515,7 @@
     <MESSAGE value="15th Commit 06/21/2026:&#10;1. Refined isotonic LRT, changed into H0: global #trials increasing, all results show REJECT H0 with p-value ~0, which indicates instead of strict monotone increasing the difficulty has significant fluctuations.&#10;2. Refined regression, changed parameter a into categorical data and tested regression under different magnitude range (3-13, 10-13, 12-13) which shows a tendency of convergence to 1 of the coefficient of log(sqrt(p)), with coefficient of log(b) shows a tendency of convergence to 0 and a converging to 3&amp;4 as magnitude increases. One explanation is that log(sqrt(p)) and log(b) has dependent relations (with b having sqrt((p+1-m)^2-4*p) as average) and that the model has the tendency to keep only the parameter log(sqrt(p)) and absorb log(b) into it, since the impact of the absolute magnitude dominates the impact of b. One evidence to this explanation is that while the coefficient of p converging to 1 and the coefficient of b converging to 0, the difference of these two coefficients keeps close to 1. As the magnitude continues to increase it is hypothesized that the two parameters will converge into a single parameter log(sqrt(p))." />
     <MESSAGE value="16th Commit 06/30/2026:&#10;Initial trial for agent-assisted algorithm optimization. &#10;Methodology: Prompted AI to discover both deterministic and statistic patterns in the training data and encapsulate its hypothesized filter mechanism in a function, aiming to create a library of filter strategies (in filter_strategies.py). The Current difficulty is that the agent tends to fail creating an effective strategy besides guessing random patterns that are ineffective for optimization." />
     <MESSAGE value="17th Commit 06/30/2026:&#10;Initial trial for agent-assisted algorithm optimization. &#10;Methodology: Prompted AI to discover both deterministic and statistic patterns in the training data and encapsulate its hypothesized filter mechanism in a function, aiming to create a library of filter strategies (in filter_strategies.py). An effective progress is that the agent is currently able to discover heuristic &amp; statistical patterns in the data and shrink the searching space despite ignoring some potentially correct answers, but the negative impact will be minimal for large primes. The next steps: 1. Optimize training &amp; prompting strategy to encourage discovery of more advanced algebraic geometry patterns, 2. If needed, decrease false negative rate" />
-    <option name="LAST_COMMIT_MESSAGE" value="17th Commit 06/30/2026:&#10;Initial trial for agent-assisted algorithm optimization. &#10;Methodology: Prompted AI to discover both deterministic and statistic patterns in the training data and encapsulate its hypothesized filter mechanism in a function, aiming to create a library of filter strategies (in filter_strategies.py). An effective progress is that the agent is currently able to discover heuristic &amp; statistical patterns in the data and shrink the searching space despite ignoring some potentially correct answers, but the negative impact will be minimal for large primes. The next steps: 1. Optimize training &amp; prompting strategy to encourage discovery of more advanced algebraic geometry patterns, 2. If needed, decrease false negative rate" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/01_src/lrt_pipeline.py</url>
-          <line>174</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="18th Commit 07/05/2026:&#10;Updated evaluation of filters, concluded that more complex algebraic structures needed to be prompted to be discovered or an active search for theories on Pomerance Proof is needed" />
+    <option name="LAST_COMMIT_MESSAGE" value="18th Commit 07/05/2026:&#10;Updated evaluation of filters, concluded that more complex algebraic structures needed to be prompted to be discovered or an active search for theories on Pomerance Proof is needed" />
   </component>
 </project>
