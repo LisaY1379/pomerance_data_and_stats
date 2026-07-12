@@ -1,82 +1,130 @@
-import subprocess
-import time
 import os
+import sys
 import csv
-from collections import defaultdict
+import time
+import subprocess
+import pandas as pd
+import numpy as np
+from core.difficulty_parameter_a import process_prime_data
 
-def run_incremental_benchmark(digits, target_triples=20):
-    data_dir = os.path.join("..", "data", "final_data")
+try:
+    import cypari2
+
+    pari = cypari2.Pari()
+except ImportError:
+    print("❌ Critical Error: 'cypari2' library not detected in this Python environment.")
+    sys.exit(1)
+
+
+def compile_c_core():
+    """
+    Locates and automatically compiles the C language core binary.
+    """
+    print("Step 0: Checking and compiling C core executable...")
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    c_source_file = os.path.join(script_dir, "pomerance.c")
+    executable_path = os.path.join(script_dir, "pomerance")
+
+    if not os.path.exists(c_source_file):
+        print(f"❌ Error: Source file not found at {c_source_file}")
+        if os.path.exists(executable_path):
+            print(f"⚠️ Utilizing existing binary at {executable_path}")
+            return executable_path
+        sys.exit(1)
+
+    compile_strategies = [
+        (['gcc-15', '-O3', '-fopenmp', c_source_file, '-o', executable_path, '-lm'],
+         "GCC 15 with OpenMP (Max Performance)"),
+        (['gcc', '-O3', '-fopenmp', c_source_file, '-o', executable_path, '-lm'],
+         "Standard GCC with OpenMP (Multi-core)"),
+        (['gcc', '-O3', c_source_file, '-o', executable_path, '-lm'],
+         "Standard GCC (Single-thread Fallback)")
+    ]
+
+    for cmd, desc in compile_strategies:
+        print(f"  Attempting: {desc}...")
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            if result.returncode == 0:
+                print(f"  🔥 SUCCESS: Compiled successfully using {desc}!")
+                return executable_path
+        except FileNotFoundError:
+            pass
+
+    print("\n❌ Final Compilation FAILED! All compilation strategies exhausted.")
+    sys.exit(1)
+
+
+def generate_proven_primes(number_of_primes, digits, seed_value):
+    """
+    Generates mathematically proven ECPP primes natively via cypari2 engine.
+    """
+    print(f"Step 1: Generating {number_of_primes} fresh proven primes ({digits} digits) with seed {seed_value}...")
+    rng = np.random.default_rng(seed_value)
+    proven_primes = []
+
+    lower_bound = 10 ** (digits - 1)
+    upper_bound = 10 ** digits
+
+    while len(proven_primes) < number_of_primes:
+        candidate = int(rng.integers(lower_bound, upper_bound))
+        if pari.ispseudoprime(candidate):
+            if pari.isprime(candidate, 3):
+                proven_primes.append(candidate)
+                print(f"  [{len(proven_primes)}/{number_of_primes}] ECPP Verified: {candidate}")
+
+    return proven_primes
+
+
+def run_incremental_benchmark(digits=9, triple_amount_for_each_prime=20, number_of_primes=20, seed=None):
+    """
+    Universal one-click generation entry point with clear explicit terminology.
+    """
+    # 0. Compile C Engine
+    executable_path = compile_c_core()
+    print("-" * 65)
+
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.abspath(os.path.join(script_dir, ".."))
+    data_dir = os.path.join(project_root, "data")
+
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
 
-    old_pure_file = os.path.join(data_dir, f"prime_{digits}_digits.csv")
-    stateful_input_file = os.path.join(data_dir, f"stateful_prime_{digits}_digits.txt")
-    out_pure_new = os.path.join(data_dir, f"prime_{digits}_digits_NEWONLY.txt")
-    out_metrics_new = os.path.join(data_dir, f"prime_{digits}_digits_metrics_NEWONLY.csv")
-    final_20_file = os.path.join(data_dir, f"prime_{digits}_digits_FINAL_20.csv")
-    report_file = os.path.join("..", "reports", f"triple_benchmark_{digits}_digits_incremental.txt")
+    seed_value = seed if seed is not None else int(time.time())
 
-    print(f"Step 1: Reading existing triples from {old_pure_file} to build context state...")
-    existing_data = defaultdict(list)
+    # 📁 Setup temporary pipeline scratch files
+    stateful_input_file = os.path.join(data_dir, f"tmp_stateful_primes_{digits}d.txt")
+    out_pure_new = os.path.join(data_dir, f"tmp_pure_{digits}d_NEWONLY.txt")
+    out_metrics_new = os.path.join(data_dir, f"tmp_metrics_{digits}d_NEWONLY.csv")
+    tmp_merged_4col = os.path.join(data_dir, f"tmp_merged_4col_{digits}d.csv")
+    tmp_with_a_5col = os.path.join(data_dir, f"tmp_with_a_5col_{digits}d.csv")
 
-    if os.path.exists(old_pure_file):
-        with open(old_pure_file, "r") as f:
-            reader = csv.reader(f)
-            for row in reader:
-                if not row or "FAILED" in row[0].upper() or "PRIME" in row[0].upper():
-                    continue
-                if len(row) >= 3:
-                    p, a, x0 = row[0].strip(), row[1].strip(), row[2].strip()
-                    if p.isdigit() and a.isdigit() and x0.isdigit():
-                        existing_data[p].append((a, x0))
-    else:
-        print(f"Warning: Original file {old_pure_file} not found. Starting fresh.")
+    # 🛠️ AUTO-INCREMENT VERSION CONFLICT RESOLUTION (Starting at v2)
+    version = 2
+    while True:
+        candidate_filename = f"{digits}_digits_v{version}.csv"
+        final_output_path = os.path.join(data_dir, candidate_filename)
+        if not os.path.exists(final_output_path):
+            break
+        version += 1
 
-    print(f"Loaded existing data for {len(existing_data)} primes.")
+    # --- Step 1: Fresh Prime Generation ---
+    fresh_primes = generate_proven_primes(number_of_primes, digits, seed_value)
 
-    primes_to_process = 0
+    # --- Step 2: Construct Fresh Entrypoints for C ---
+    print(f"\nStep 2: Preparing data boundaries for C Core allocation matrix...")
     with open(stateful_input_file, "w") as f:
-        for p, pairs in existing_data.items():
-            if len(pairs) >= target_triples:
-                continue
+        for p in fresh_primes:
+            f.write(f"{p} 0\n")
 
-            primes_to_process += 1
-            line_parts = [p, str(len(pairs))]
-            for a, x0 in pairs:
-                line_parts.extend([a, x0])
-
-            f.write(" ".join(line_parts) + "\n")
-
-    if primes_to_process == 0:
-        print("All primes already have the target number of triples! Exiting.")
-        return
-
-    print(f"Step 2: Starting C Generation for {primes_to_process} primes to reach {target_triples} triples...")
-    start_wall_time = time.perf_counter()
-
+    # --- Step 3: Call C Pseudo-Prime Triple Verification Engine ---
+    print(f"\nStep 3: Launching C Core execution loop targeting {triple_amount_for_each_prime} curves per prime...")
     subprocess.run(
-        ['./pomerance', stateful_input_file, out_pure_new, out_metrics_new, str(target_triples)]
-    )
+        [executable_path, stateful_input_file, out_pure_new, out_metrics_new, str(triple_amount_for_each_prime)])
 
-    end_wall_time = time.perf_counter()
-    total_time = end_wall_time - start_wall_time
-    print(f"C generation finished in {total_time:.2f} seconds.")
-
-    print(f"Step 3: Safely merging and SORTING 4-column data into {final_20_file}...")
-
+    # Parse and sort 4-column raw metrics data stream
     all_rows = []
-    total_trials = 0
-    success_count = 0
-
-    if os.path.exists(old_pure_file):
-        with open(old_pure_file, "r") as fold:
-            reader = csv.reader(fold)
-            for row in reader:
-                if not row or "FAILED" in row[0].upper() or "PRIME" in row[0].upper():
-                    continue
-                if len(row) >= 4:
-                    all_rows.append([row[0].strip(), row[1].strip(), row[2].strip(), row[3].strip()])
-
     if os.path.exists(out_metrics_new):
         with open(out_metrics_new, "r") as fnew:
             reader = csv.reader(fnew)
@@ -85,33 +133,48 @@ def run_incremental_benchmark(digits, target_triples=20):
                     continue
                 if len(row) >= 4:
                     all_rows.append([row[0].strip(), row[1].strip(), row[2].strip(), row[3].strip()])
-                    total_trials += int(row[3].strip())
-                    success_count += 1
 
     all_rows.sort(key=lambda x: int(x[0]))
 
-    with open(final_20_file, "w", newline='') as fout:
+    with open(tmp_merged_4col, "w", newline='') as fout:
         writer = csv.writer(fout)
         writer.writerow(['prime', 'A', 'x0', 'trials'])
         writer.writerows(all_rows)
 
-    report_dir = os.path.dirname(report_file)
-    if not os.path.exists(report_dir):
-        os.makedirs(report_dir)
+    # --- Step 4: Parameter A Integration (Calling the Core module directly) ---
+    print("\nStep 4: Redirecting data to core module for Parameter A compute...")
+    process_prime_data(input_file=tmp_merged_4col, output_file=tmp_with_a_5col)
 
-    with open(report_file, "w") as f:
-        f.write("=== INCREMENTAL GENERATION BENCHMARK ===\n")
-        f.write(f"Targeting total: {target_triples} triples per prime\n")
-        f.write(f"Digits parameter: {digits}\n")
-        f.write(f"Hardware Processing Time: {total_time:.4f} seconds\n")
-        f.write("-" * 35 + "\n")
-        f.write(f"New Successful Proofs Generated: {success_count}\n")
-        f.write(f"Total New A's Tried: {total_trials}\n")
-        if success_count > 0:
-            f.write(f"Average New A's Tried per Proof: {total_trials / success_count:.2f}\n")
-        f.write("-" * 35 + "\n")
+    # --- Step 5: Bridge Cross-Runtime call to SageMath for Parameter B ---
+    print("\nStep 5: Invoking SageMath via background subprocess for Parameter B...")
+    sage_script_path = os.path.join(script_dir, "core", "difficulty_parameter_b.sage")
+    if not os.path.exists(sage_script_path):
+        sage_script_path = os.path.join(script_dir, "difficulty_parameter_b.sage")
 
-    print(f"Done! Merged and SORTED data (with trials) saved to: {final_20_file}")
-    print(f"Benchmark report saved to: {report_file}")
+    sage_cmd = ["sage", sage_script_path, tmp_with_a_5col, final_output_path]
 
-run_incremental_benchmark(digits=9, target_triples=20)
+    try:
+        subprocess.run(sage_cmd, capture_output=True, text=True, check=True)
+        print("  [+] SageMath Group Action Class Number calculations completed.")
+    except FileNotFoundError:
+        print("\n❌ Environment Execution Error: 'sage' binary utility not detected on system PATH.")
+        sys.exit(1)
+    except subprocess.CalledProcessError as e:
+        print(f"\n❌ SageMath Subprocess Crash! Output details:\n{e.stderr}")
+        sys.exit(1)
+
+    # --- Step 6: Spotless Garbage Clean up Engine ---
+    print("\nStep 6: Purging all temporary scratch files and pure TXT outputs...")
+    garbage_list = [stateful_input_file, out_pure_new, out_metrics_new, tmp_merged_4col, tmp_with_a_5col]
+    for trash in garbage_list:
+        if os.path.exists(trash):
+            os.remove(trash)
+
+    print(f"\n==================================================================")
+    print(f"🎉 FRESH END-TO-END PIPELINE SHUTDOWN SUCCESSFUL!")
+    print(f"👉 New Clean Asset Generated -> data/{os.path.basename(final_output_path)}")
+    print(f"==================================================================\n")
+
+
+if __name__ == "__main__":
+    run_incremental_benchmark(digits=9, triple_amount_for_each_prime=20, number_of_primes=100)
