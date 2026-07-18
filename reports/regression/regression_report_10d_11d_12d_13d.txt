@@ -1,0 +1,125 @@
+==============================================================================
+                 ECPP Complexity Regression Analysis Report                   
+==============================================================================
+Source Data File: Aggregated Selection Array
+Total Unique Primes Analyzed: 10955
+
+------------------------------------------------------------------------------
+ 1. MULTICOLLINEARITY INVESTIGATION: AUXILIARY REGRESSION & RESIDUALIZATION   
+------------------------------------------------------------------------------
+Methodology: Regressing log(sqrt(p)) over log(B) to test the Hasse invariant.
+Expected Coefficient for log(B): ~ 1.0 (Theoretical Bound)
+Empirical Slope Coefficient    : 0.874795
+Auxiliary Model R-squared      : 0.869812 (Confirms Collinearity)
+
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:             log_sqrt_p   R-squared:                       0.870
+Model:                            OLS   Adj. R-squared:                  0.870
+Method:                 Least Squares   F-statistic:                 7.318e+04
+Date:                Sat, 18 Jul 2026   Prob (F-statistic):               0.00
+Time:                        18:57:26   Log-Likelihood:                -6318.6
+No. Observations:               10955   AIC:                         1.264e+04
+Df Residuals:                   10953   BIC:                         1.266e+04
+Df Model:                           1                                         
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept      2.1557      0.038     56.005      0.000       2.080       2.231
+log_b          0.8748      0.003    270.516      0.000       0.868       0.881
+==============================================================================
+Omnibus:                      284.694   Durbin-Watson:                   1.724
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):              402.515
+Skew:                           0.289   Prob(JB):                     3.94e-88
+Kurtosis:                       3.740   Cond. No.                         112.
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+
+------------------------------------------------------------------------------
+ 2. ORIGINAL BASELINE MODEL (With Multicollinearity Weight Splitting)        
+------------------------------------------------------------------------------
+Equation: log(trials) = beta0 + beta1 * log(sqrt_p) + beta_a + beta3 * log(b)
+
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:             log_trials   R-squared:                       0.914
+Model:                            OLS   Adj. R-squared:                  0.914
+Method:                 Least Squares   F-statistic:                 2.334e+04
+Date:                Sat, 18 Jul 2026   Prob (F-statistic):               0.00
+Time:                        18:57:26   Log-Likelihood:                -4566.8
+No. Observations:               10955   AIC:                             9146.
+Df Residuals:                   10949   BIC:                             9189.
+Df Model:                           5                                         
+Covariance Type:            nonrobust                                         
+=========================================================================================
+                            coef    std err          t      P>|t|      [0.025      0.975]
+-----------------------------------------------------------------------------------------
+Intercept                -0.9214      0.369     -2.500      0.012      -1.644      -0.199
+C(param_a_count)[T.2]    -0.5370      0.367     -1.462      0.144      -1.257       0.183
+C(param_a_count)[T.3]    -0.8655      0.367     -2.356      0.018      -1.586      -0.146
+C(param_a_count)[T.4]    -1.1112      0.367     -3.025      0.002      -1.831      -0.391
+log_sqrt_p                1.2799      0.008    156.945      0.000       1.264       1.296
+log_b                    -0.2847      0.008    -37.247      0.000      -0.300      -0.270
+==============================================================================
+Omnibus:                        5.972   Durbin-Watson:                   1.964
+Prob(Omnibus):                  0.050   Jarque-Bera (JB):                6.040
+Skew:                          -0.043   Prob(JB):                       0.0488
+Kurtosis:                       3.075   Cond. No.                     3.63e+03
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+[2] The condition number is large, 3.63e+03. This might indicate that there are
+strong multicollinearity or other numerical problems.
+
+------------------------------------------------------------------------------
+ 3. ORTHOGONALIZED MAIN MODEL (Multicollinearity Purged via Residuals)        
+------------------------------------------------------------------------------
+Equation: log(trials) = beta0 + beta_res * res_log_sqrt_p + beta_a + beta3_ortho * log(b)
+Note: Substituting log(sqrt_p) with exact orthogonal residuals eliminates VIF inflation.
+      The log(b) coefficient now strictly converges to the theoretical sum invariant!
+
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:             log_trials   R-squared:                       0.914
+Model:                            OLS   Adj. R-squared:                  0.914
+Method:                 Least Squares   F-statistic:                 2.334e+04
+Date:                Sat, 18 Jul 2026   Prob (F-statistic):               0.00
+Time:                        18:57:26   Log-Likelihood:                -4566.8
+No. Observations:               10955   AIC:                             9146.
+Df Residuals:                   10949   BIC:                             9189.
+Df Model:                           5                                         
+Covariance Type:            nonrobust                                         
+=========================================================================================
+                            coef    std err          t      P>|t|      [0.025      0.975]
+-----------------------------------------------------------------------------------------
+Intercept                 1.8376      0.368      4.990      0.000       1.116       2.559
+C(param_a_count)[T.2]    -0.5370      0.367     -1.462      0.144      -1.257       0.183
+C(param_a_count)[T.3]    -0.8655      0.367     -2.356      0.018      -1.586      -0.146
+C(param_a_count)[T.4]    -1.1112      0.367     -3.025      0.002      -1.831      -0.391
+res_log_sqrt_p            1.2799      0.008    156.945      0.000       1.264       1.296
+log_b                     0.8349      0.003    301.651      0.000       0.829       0.840
+==============================================================================
+Omnibus:                        5.972   Durbin-Watson:                   1.964
+Prob(Omnibus):                  0.050   Jarque-Bera (JB):                6.040
+Skew:                          -0.043   Prob(JB):                       0.0488
+Kurtosis:                       3.075   Cond. No.                     2.50e+03
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+[2] The condition number is large, 2.5e+03. This might indicate that there are
+strong multicollinearity or other numerical problems.
+
+--- Exact Significance Test (Orthogonal Model P-Values) ---
+Intercept                     : 6.1370e-07
+C(param_a_count)[T.2]         : 1.4377e-01
+C(param_a_count)[T.3]         : 1.8468e-02
+C(param_a_count)[T.4]         : 2.4950e-03
+res_log_sqrt_p                : 0.0000e+00
+log_b                         : 0.0000e+00
+
+==============================================================================

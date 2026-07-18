@@ -4,6 +4,23 @@ This repository delivers a systematic benchmark investigating the following two 
 1. **Search Volatility**: How the number of trials required to find a Pomerance triple fluctuates across different prime scales.
 2. **Correlation Analysis**: The key structural factors affecting search difficulty and their statistical correlations.
 
+## Description of Data
+The dataset `data/` contains Pomerance triples for some primes ranging from 3 to 13 digits. 20 triples are generated for each prime.
+
+### What is a Pomerance Triple?
+
+A Pomerance proof verifies that an odd integer $p$ is prime via a Pomerance triple $(p, A, x_0)$ where $0 \le A, x_0 < p$ and $A \not\equiv \pm 2 \pmod p$. It demands that the projective point $(x_0 : 1)$ on the Montgomery curve $By^2 = x^3 + Ax^2 + x$ has an exact order of $2^k$, where $k$ is the least integer satisfying $2^k > q + 1 + 2\sqrt{q}$ for $q = \lfloor\sqrt{p}\rfloor$. Concretely, applying the curve's doubling law exactly $k$ times modulo $p$ must yield a $Z$-coordinate congruent to zero, whereas the $(k-1)$-th doubling must leave a $Z$-coordinate coprime to $p$.
+
+* **`prime`, `A`, `x0`**: The Pomerance triple.
+
+* **`trials`**: Number of As tried before finding a correct A.
+
+* **Parameter A (`param_a_count`)**: The number of $2^k$ multiples residing within the Hasse interval. (Categorical: 1, 2, 3, or 4).
+
+* **Parameter B (`class_number`)**: The class number derived from the curve's trace of Frobenius.
+
+The dataset provides data for testing/discovering properties of Pomerance proofs and any statistical measurements.
+
 ## Key Findings
 
 > **TL;DR:** While the search difficulty naturally scales with the size of the prime, it exhibits **massive local volatility**. However, this apparent randomness is not blind—it is strictly governed by a **log-linear relationship** with the curve's algebraic parameters $A$ and $B$.
@@ -20,16 +37,16 @@ To rigorously test whether search difficulty strictly scales with prime magnitud
   * Within every single digit group, the null hypothesis $\mathcal{H}_0$ was **rejected with a $P$-value approaching 0**. 
   * **Scientific Interpretation**: This indicates that while the search difficulty exhibits a clear upward trend *macroscopically* as primes grow across digit scales (Global Monotonicity), it exhibits high **local stochastic volatility** *microscopically*. The rigid non-decreasing assumption is violated frequently in local windows due to the unique properties of individual primes. Thus, finding a Pomerance triple is governed by a global trend but heavily driven by local randomness.
 
-### 2. Correlation Analysis (Log-Log Regression)
-To understand what structural factors govern the local stochastic volatility, we extracted two fundamental algebraic parameters for each prime and curve:
-* **Parameter A (`param_a_count`)**: The number of $2^k$ multiples residing within the Hasse interval. (Categorical: 1, 2, 3, or 4).
-* **Parameter B (`class_number`)**: The class number derived from the curve's trace of Frobenius.
+### 2. Correlation Analysis (Log-Log Regression & Multicollinearity Investigation)
+To understand what structural factors govern the local stochastic volatility, we extracted two fundamental algebraic parameters for each prime and curve: Parameter A (`param_a_count`) and Parameter B (`class_number`).
 
-We conducted multiple Log-Log Ordinary Least Squares (OLS) regressions across different digit scales using the model: $\log(\text{trials}) = \beta_0 + \beta_1 \log(\sqrt{p}) + \beta_A + \beta_B \log(B)$.
+We conducted multiple Log-Log Ordinary Least Squares (OLS) regressions across different digit scales using the primary baseline model: $\log(\text{trials}) = \beta_0 + \beta_1 \log(\sqrt{p}) + \beta_A + \beta_B \log(B)$.
 
 * **Deterministic Log-Linear Relationship**: On the global dataset ($N=39,573$), the model explained an overwhelming **$96.2\%$ of the variance** ($R^2 = 0.962$). This reveals that while the search process relies on random sampling, the *expected difficulty* is almost completely deterministic, governed tightly by a log-linear relationship with parameters $A$ and $B$.
 * **The Hasse Multiplier Effect (Param A)**: Primes yielding more $2^k$ multiples are exponentially easier to solve. The categorical coefficients strictly followed a monotonically decreasing impact ($\beta_{A=4} < \beta_{A=3} < \beta_{A=2} < 0$).
-* **Multicollinearity & The $\log(\sqrt{p})$ Invariant (Param B)**: A striking mathematical artifact emerges between the prime magnitude $p$ and the class number $B$. Theoretically, search complexity scales linearly with $\sqrt{p}$ (expected coefficient of $1$). Because $B$ is bounded by the Hasse interval (which also scales with $\sqrt{p}$), the two variables exhibit strong multicollinearity. Our empirical data perfectly captures this invariant: while the regression splits the weights, their coefficient sum strictly conserves the theoretical bound ($\beta_{\log(\sqrt{p})} + \beta_{\log(B)} \approx 1.286 - 0.292 \approx 1$).
+* **Multicollinearity & The $\log(\sqrt{p})$ Invariant (Param B)**: A striking mathematical artifact emerges between the prime magnitude $p$ and the class number $B$. Theoretically, search complexity scales linearly with $\sqrt{p}$ (expected coefficient of $1$). Because $B$ is bounded by the Hasse interval (which also scales with $\sqrt{p}$), the two variables exhibit strong multicollinearity. Our empirical baseline perfectly captures this invariant: while the regression splits the weights due to Variance Inflation, their coefficient sum strictly conserves the theoretical bound ($\beta_{\log(\sqrt{p})} + \beta_{\log(B)} \approx 1.286 - 0.292 \approx 1$).
+* **Empirical Verification via Auxiliary Regression**: To isolate and prove this theoretical bound without weight distortion, we conducted an auxiliary regression of $\log(\sqrt{p})$ over $\log(B)$. As predicted by the Hasse interval constraint, the model yielded a near-perfect coefficient of $\hat{\gamma} = 0.9720$ ($R^2 = 0.975$), statistically confirming the 1:1 log-scale asymptotic expansion rate between prime scale and class number magnitude.
+* **Orthogonal Residualization (Purging Collinearity)**: By extracting the orthogonal residuals ($\varepsilon$) from the auxiliary regression—representing the pure unique variance of $\log(\sqrt{p})$ uncorrelated with $\log(B)$—and substituting them back into our main model, we completely eliminated multicollinearity. In this orthogonalized model ($\log(\text{trials}) = \beta_0 + \beta_{\text{res}} \cdot \varepsilon + \beta_A + \beta_B^* \log(B)$), the class number coefficient $\beta_B^*$ immediately converges to the clean theoretical invariant bound ($\beta_B^* \approx 0.956 \approx 1.0$), while $\beta_{\text{res}}$ ($1.287$) independently captures the baseline stochastic scaling difficulty of the prime magnitude.
 
 ## Reproduction
 

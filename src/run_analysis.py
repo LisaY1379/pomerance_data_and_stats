@@ -125,9 +125,4 @@ def reproduce():
     print("==============================================================================\n")
 
 if __name__ == "__main__":
-    # Default entry point fires up the comprehensive replication testbed suite
-    reproduce()
-
-    # Advanced custom analysis testing block (uncomment to test individual methods in terminal)
-    # lrt(9, 2)
-    # regression({12, 13})
+    regression({12, 13})
