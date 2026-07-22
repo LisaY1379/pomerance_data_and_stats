@@ -31,7 +31,7 @@ Given that our algorithm randomly samples the parameter $A$, the number of trial
 To rigorously test whether search difficulty strictly scales with prime magnitude, we conducted an **Isotonic Likelihood Ratio Test (Isotonic LRT)** within each digit interval (from 3-digit up to 13-digit segments). 
 
 * **The Statistical Setup**:
-  * $\mathcal{H}_0$ (Monotonicity Hypothesis): Expected search trials are monotonically non-decreasing with respect to the primes within the same digit scale ($T_{p_1} \le T_{p_2} \le \dots \le T_{p_n}$ for sorted primes $p_i$).
+  * $\mathcal{H}_{0}$ (Monotonicity Hypothesis): Expected search trials are monotonically non-decreasing with respect to the primes within the same digit scale ($T_{p_1} \le T_{p_2} \le \dots \le T_{p_n}$ for sorted primes $p_i$).
   * $\mathcal{H}_1$ (Unconstrained Space): Expected trials can fluctuate freely across the prime spectrum.
 * **The Empirical Result**:
   * Within every single digit group, the null hypothesis $\mathcal{H}_0$ was **rejected with a $P$-value approaching 0**. 
